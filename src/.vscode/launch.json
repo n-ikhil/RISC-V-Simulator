@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - tes_main",
+            "request": "launch",
+            "mainClass": "assembler.tes_main"
+        }
+    ]
+}
