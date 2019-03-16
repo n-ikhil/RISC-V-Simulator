@@ -128,7 +128,8 @@ public class instruction
         binary_temp[1]=Integer.toBinaryString(r1);
         for(int i=0;i<5-binary_temp[1].length();i++)
         {
-            temp=temp+"0";
+            
+            if(r1<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[1];
         binary_temp[1]=temp;
@@ -138,7 +139,8 @@ public class instruction
         binary_temp[2]=Integer.toBinaryString(iv);
         for(int i=0;i<32-binary_temp[2].length();i++)
         {
-            temp=temp+"0";
+            
+            if(iv<0) temp=temp+"1";else temp=temp+"0";
         }
         binary_temp[2]=temp+binary_temp[2];
        
@@ -170,7 +172,7 @@ public class instruction
         binary_temp[1]=Integer.toBinaryString(r1);
         for(int i=0;i<5-binary_temp[1].length();i++)
         {
-          temp=temp+"0";
+          if(r1<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[1];
         binary_temp[1]=temp;
@@ -214,7 +216,7 @@ public class instruction
         binary_temp[1]=Integer.toBinaryString(r1);
         for(int i=0;i<5-binary_temp[1].length();i++)
         {
-            temp=temp+"0";
+            if(r1<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[1];
         binary_temp[1]=temp;
@@ -226,7 +228,7 @@ public class instruction
         binary_temp[3]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[3].length();i++)
         {
-            temp=temp+"0";
+            if(r2<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[3];
         binary_temp[3]=temp;
@@ -238,7 +240,7 @@ public class instruction
         binary_temp[4]=Integer.toBinaryString(r3);
         for(int i=0;i<5-binary_temp[4].length();i++)
         {
-            temp=temp+"0";
+            if(r3<0) temp=temp+"1";else temp=temp+"0";
         }
 
         temp=temp+binary_temp[4];
@@ -275,7 +277,7 @@ public class instruction
         binary_temp[1]=Integer.toBinaryString(r1);
         for(int i=0;i<5-binary_temp[1].length();i++)
         {
-            temp=temp+"0";
+            if(r1<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[1];
         binary_temp[1]=temp;
@@ -289,7 +291,7 @@ public class instruction
         binary_temp[3]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[3].length();i++)
         {
-            temp=temp+"0";
+            if(r2<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[3];
         binary_temp[3]=temp;
@@ -301,7 +303,7 @@ public class instruction
         binary_temp[4]=Integer.toBinaryString(r3);
         for(int i=0;i<12-binary_temp[4].length();i++)
         {
-            temp=temp+"0";
+            if(r3<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[4];
         binary_temp[4]=temp;
@@ -335,7 +337,7 @@ public class instruction
         binary_temp[3]=Integer.toBinaryString(r3);
         for(int i=0;i<5-binary_temp[3].length();i++)
         {
-            temp=temp+"0";
+            if(r3<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[3];
         binary_temp[3]=temp;
@@ -347,7 +349,7 @@ public class instruction
         binary_temp[4]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[4].length();i++)
         {
-            temp=temp+"0";
+            if(r2<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[4];
         binary_temp[4]=temp;
@@ -358,7 +360,7 @@ public class instruction
         
         for(int i=0;i<12-local.length();i++)
         {
-            temp=temp+"0";
+            if(val<0) temp=temp+"1";else temp=temp+"0";
         }
        
         binary_temp[5]=temp.substring(0,7);
@@ -388,7 +390,7 @@ public class instruction
         binary_temp[3]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[3].length();i++)
         {
-            temp=temp+"0";
+            if(r2<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[3];
         binary_temp[3]=temp;
@@ -398,7 +400,7 @@ public class instruction
         binary_temp[4]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[4].length();i++)
         {
-            temp=temp+"0";
+            if(r2<0) temp=temp+"1";else temp=temp+"0";
         }
         temp=temp+binary_temp[4];
         binary_temp[4]=temp;
@@ -416,7 +418,7 @@ public class instruction
             local=Integer.toBinaryString(val);
             for(int i=0;i<13-local.length();i++)
             {
-                temp=temp+"0";
+                if(val<0) temp=temp+"1";else temp=temp+"0";
             }
             local=temp;
 
@@ -438,7 +440,7 @@ public class instruction
             local = Integer.toBinaryString(val);
             for(int i=0;i<21-local.length();i++)
             {
-                temp=temp+"0";
+                if(val<0) temp=temp+"1";else temp=temp+"0";
             }
             local=temp;
             binary_temp[2]=local.substring(0,1);
