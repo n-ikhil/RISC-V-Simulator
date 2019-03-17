@@ -1,5 +1,6 @@
 package assembler;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -7,7 +8,12 @@ import java.io.IOException;
 
 public class assembler
 	{
-	static  String[] registers= new String[]{"x1","x2","x3","x4","x5","x6","x7","x8","x9","x10","x11","x12","x13","x14","x15","x16","x17","x18","x19","x20","21","x22","x23","x24","x25","x26","x27","x28","x29","x30","x31"};
+	/*
+	 * creating supported registers array
+	 * and converting into arraylist
+	 */
+	static  String[] register= new String[]{"x0","x1","x2","x3","x4","x5","x6","x7","x8","x9","x10","x11","x12","x13","x14","x15","x16","x17","x18","x19","x20","21","x22","x23","x24","x25","x26","x27","x28","x29","x30","x31"};
+	static ArrayList<String> registers=(ArrayList<String>) Arrays.asList(register);
 	/*
 	 * wrapper class for labels
 	 */
@@ -27,6 +33,7 @@ public class assembler
 
 	static int line_no=0;
 	static ArrayList<label>labels=new ArrayList<label>();
+	static ArrayList<instruction>instructions=new ArrayList<instruction>();
 	static void assemble() throws IOException
 		{
 		File file = new File("test.s");
@@ -67,7 +74,61 @@ public class assembler
 		{
 			if(temp=="r")
 			{
-				
+				temp=tokenlist.Tokens.get(1);
+				int r1=registers.indexOf(temp);
+				if(r1==-1)
+				{
+					System.out.println("no such register found");
+				}
+				temp=tokenlist.Tokens.get(2);
+				int r2=registers.indexOf(temp);
+				if(r2==-1)
+				{
+					System.out.println("no such register found");
+				}
+				temp=tokenlist.Tokens.get(3);
+				int r3=registers.indexOf(temp);
+				if(r3==-1)
+				{
+					System.out.println("no such register found");
+				}
+				instruction temp2=new instruction(instr,r1,r2,r3);
+				instructions.add(temp2);
+			}
+			else if(temp=="i"||temp=="s")
+			{
+				temp=tokenlist.Tokens.get(1);
+				int r1=registers.indexOf(temp);
+				if(r1==-1)
+				{
+					System.out.println("no such register found");
+				}
+				temp=tokenlist.Tokens.get(2);
+				int r2=registers.indexOf(temp);
+				if(r2==-1)
+				{
+					try {
+						   r2 = Integer.parseInt(temp);
+						}
+						catch (NumberFormatException e)
+						{
+							System.out.println("immediate value not accepted");
+						}
+				}
+				temp=tokenlist.Tokens.get(3);
+				int r3=registers.indexOf(temp);
+				if(r3==-1)
+				{
+					try {
+						   r3 = Integer.parseInt(temp);
+						}
+						catch (NumberFormatException e)
+						{
+							System.out.println("immediate value not accepted");
+						}
+				}
+				instruction temp2=new instruction(instr,r1,r2,r3);
+				instructions.add(temp2);
 			}
 		}
 	}
