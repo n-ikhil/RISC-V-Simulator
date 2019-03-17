@@ -2,7 +2,7 @@ package assembler;
 
 public class instruction
 
-<<<<<<< HEAD
+
 {
     String binary;
     String self_label;
@@ -1102,4 +1102,3 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
 			}
 
 	}
->>>>>>> 2d289bfbb8025b23c95c28961054b6acf30b2fc7
