@@ -73,7 +73,7 @@ public class instruction
           case  "sw"     : sformat("0100011","010","0000000",r3,r1,r2);break;
           //////////////////////////////////
         
-          default: System.out.println("No such instruction found !");
+          default: //System.out.println("No such instruction found !");
         }
     }
 
@@ -86,7 +86,7 @@ public class instruction
         {
           case  "auipc"  : uformat("0010011","111","0000000",r1,iv);break;
           case  "lui"    : uformat("0110111","000","0000000",r1,iv);break;
-          default: System.out.println("No such instruction found !");          
+          default: //System.out.println("No such instruction found !");          
         }
         return;
 
@@ -104,7 +104,7 @@ public class instruction
           case  "bge"    :sbformat("1100011","101","0000000",r1,r2,lab);break;
           case  "bltu"   :sbformat("1100011","110","0000000",r1,r2,lab);break;
           case  "bgeu"   :sbformat("1100011","111","0000000",r1,r2,lab);break;
-          default:  System.out.println("No such instruction found !");
+          default:  //System.out.println("No such instruction found !");
         }
     }
     instruction(String opcode,int r1, String lab)
@@ -191,7 +191,7 @@ void iformat(String s1,String s2,String s3,int r1,int r2, int r3)
         String temp=new String();
         binary_temp=new String[5];
         binary_temp[0]=s1;
-        //System.out.println(binary_temp[0]);
+        ////System.out.println(binary_temp[0]);
 
         binary_temp[1]=Integer.toBinaryString(r1);
         for(int i=0;i<5-binary_temp[1].length();i++)
@@ -202,12 +202,12 @@ void iformat(String s1,String s2,String s3,int r1,int r2, int r3)
         temp=temp.substring(temp.length()-5,temp.length());
 
         binary_temp[1]=temp;
-        //System.out.println(binary_temp[1]);
+        ////System.out.println(binary_temp[1]);
 
         temp="";
 
         binary_temp[2]=s2;
-        //System.out.println(binary_temp[2]);
+        ////System.out.println(binary_temp[2]);
 
         binary_temp[3]=Integer.toBinaryString(r2);
         for(int i=0;i<5-binary_temp[3].length();i++)
@@ -218,7 +218,7 @@ void iformat(String s1,String s2,String s3,int r1,int r2, int r3)
         temp=temp.substring(temp.length()-5,temp.length());
 
         binary_temp[3]=temp;
-        //System.out.println(binary_temp[3]);
+        ////System.out.println(binary_temp[3]);
 
         temp="";
         
@@ -232,7 +232,7 @@ void iformat(String s1,String s2,String s3,int r1,int r2, int r3)
         temp=temp.substring(temp.length()-12,temp.length());
 
         binary_temp[4]=temp;
-        //System.out.println(binary_temp[4]);
+        ////System.out.println(binary_temp[4]);
         temp="";       
 
         binary=new String();
@@ -269,7 +269,7 @@ void sformat(String s1,String s2,String s3,int r1,int r2, int r3 )
         temp=temp.substring(temp.length()-5,temp.length());
 
         binary_temp[3]=temp;
-        //System.out.println(binary_temp[3]);
+        ////System.out.println(binary_temp[3]);
 
         temp="";
         
@@ -304,7 +304,7 @@ void sformat(String s1,String s2,String s3,int r1,int r2, int r3 )
             binary=binary+binary_temp[temp_s];
         }
         // for(String h:binary_temp)
-        // System.out.println(h);
+        // //System.out.println(h);
         wants_label=false;
         return;
     }
@@ -431,11 +431,11 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
     void substitute(int  val,instruction ins)
     {
         String local,temp="";
-        System.out.println(val);
+        //System.out.println(val);
         if(ins.type=='b')
         {
             local=Integer.toBinaryString(val);
-            System.out.println(local);
+            //System.out.println(local);
             for(int i=0;i<13-local.length();i++)
             {
                 if(val<0) temp=temp+"1";else temp=temp+"0";
@@ -453,10 +453,10 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
             {
                 ins.binary=ins.binary+ins.binary_temp[temp_s];
             }
-            System.out.println("b-----------------------------------------");
-            for(String h:ins.binary_temp)
-            System.out.println(h);
-            System.out.println("b-----------------------------------------/");
+            //System.out.println("b-----------------------------------------");
+            //
+            //System.out.println(h);
+            //System.out.println("b-----------------------------------------/");
         }
        
         else if(ins.type=='j')
@@ -477,10 +477,10 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
             {
                 ins.binary=ins.binary+ins.binary_temp[temp_s];
             }
-            System.out.println("j-----------------------------------------");
-            for(String h:ins.binary_temp)
-            System.out.println(h);
-            System.out.println("j-----------------------------------------/");
+            //System.out.println("j-----------------------------------------");
+            //
+            //System.out.println(h);
+            //System.out.println("j-----------------------------------------/");
             
         }
     }
