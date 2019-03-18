@@ -12,6 +12,7 @@ public class tes_main
     */
     public static void main(String [] args)
     {
+        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
       
         // instruction ar[]=new instruction[6];
         // instruction.add_label("top");
@@ -33,6 +34,8 @@ public class tes_main
         temp.storebyte(268435455,"10101010");
         String in=temp.loadbyte(268435455);
         System.out.println(in);
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        System.out.println(beforeUsedMem-afterUsedMem);
 
     }
 }

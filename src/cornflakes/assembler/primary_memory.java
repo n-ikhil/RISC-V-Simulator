@@ -3,10 +3,10 @@ public class primary_memory
 {
     //
     private String[] memory;
-    final long stack_start=268435456;//2^27
+    final long stack_start=268435452;//2^28-3-1
     final long heap_start=134217728;//2^28
     final long instruction_start=0;//no reserved,obvio !!
-
+    //the above values are chosen arbitrarily
     primary_memory()
     {       
         memory=new String[268435456]; //max-memory=2^28;
