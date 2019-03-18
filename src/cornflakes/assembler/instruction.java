@@ -60,7 +60,7 @@ public class instruction
           case  "srliw"  : iformat("0110011","101","0000000",r1,r2,r3);break;
           case  "sraiw"  : iformat("0110011","101","0100000",r1,r2,r3);break;
           ///////////////////////////////////////////////////////////////////
-          case  "jalr"   : iformat("1100011","000","0000000",r1,r3,r2);break;
+          case  "jalr"   : iformat("1100111","000","0000000",r1,r3,r2);break;
           ////////////////////////////////////note:interchanged r2 r3 below
           case  "lb"     : iformat("0000011","000","0000000",r1,r3,r2);break;
           case  "lh"     : iformat("0000011","001","0000000",r1,r3,r2);break;
@@ -510,7 +510,10 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
                         }
                     }
             }
-            
+         
+            int hex_temp=(int)Long.parseLong(temp.binary,2);
+            temp.hex=Integer.toHexString(hex_temp);
+            temp.hex="0x"+temp.hex;
         }
     }
 

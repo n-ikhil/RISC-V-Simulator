@@ -24,8 +24,10 @@ public class tes_main
         ar[5]=new instruction("jal",1,"bottom");//0
         instruction.assign_labels(ar);
         //ar[0]=new instruction("sw",1,846,31);
+        // ar[0]=new instruction("lw",1,1234,17);
+        // ar[1]=new instruction("sh",31, 783, 5);
         for(instruction temp:ar)
-        System.out.println(temp.binary);
+        System.out.println(temp.hex);
 
     }
 }
