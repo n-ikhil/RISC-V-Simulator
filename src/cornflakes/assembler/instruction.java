@@ -510,10 +510,15 @@ void uformat(String s1,String s2,String s3,int r1,int iv)
                         }
                     }
             }
-         
+         try {
             int hex_temp=(int)Long.parseLong(temp.binary,2);
             temp.hex=Integer.toHexString(hex_temp);
             temp.hex="0x"+temp.hex;
+             
+         } catch (Exception e) {
+            System.out.println("No matching label found || Null string detected");
+         }
+           
         }
     }
 
