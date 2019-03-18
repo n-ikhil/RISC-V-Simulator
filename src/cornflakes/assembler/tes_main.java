@@ -30,9 +30,9 @@ public class tes_main
         // System.out.println(temp.hex);
 
         primary_memory temp=new primary_memory();
-        temp.memory[0]=new String();
-        temp.memory[0]="nikhil";
-        System.out.println(temp.memory[0]);
+        temp.storebyte(268435455,"10101010");
+        String in=temp.loadbyte(268435455);
+        System.out.println(in);
 
     }
 }

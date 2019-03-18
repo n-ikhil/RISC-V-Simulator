@@ -3,9 +3,9 @@ public class primary_memory
 {
     //
     private String[] memory;
-    final Long stack_start=268435456;//2^27
-    final Long heap_start=134217728;//2^28
-    final Long instruction_start=0;//no reserved,obvio !!
+    final long stack_start=268435456;//2^27
+    final long heap_start=134217728;//2^28
+    final long instruction_start=0;//no reserved,obvio !!
 
     primary_memory()
     {       
@@ -15,31 +15,38 @@ public class primary_memory
     //////////////////////////////////////////////////////////////////
     //  input is binary string  //
     
-    void storebyte(Long addr,String byte_in)
+    void storebyte(long addr,String byte_in)
     {
-        memory[addr]=byte_in.substring(0,9);
+        memory[(int)addr]=byte_in.substring(0,8);
     }
-    void storeword(Long addr,String word_in)
+    void storeword(long addr,String word_in)
     {
         //little endian//
-        memory[addr]  =word_in.substring(24,32);
-        memory[addr+1]=word_in.substring(16,24);
-        memory[addr+2]=word_in.substring(8 ,16);
-        memory[addr+3]=word_in.substring(0 , 8);
+        memory[(int)addr]  =word_in.substring(24,32);
+        memory[(int)addr+1]=word_in.substring(16,24);
+        memory[(int)addr+2]=word_in.substring(8 ,16);
+        memory[(int)addr+3]=word_in.substring(0 , 8);
     }
-    void storehalf(Long addr,String half_in)
+    void storehalf(long addr,String half_in)
     {
-        memory[addr]=word_in.substring(8 ,16);
-        memory[addr+1]=word_in.substring(0 , 8);
+        memory[(int)addr]=half_in.substring(8 ,16);
+        memory[(int)addr+1]=half_in.substring(0 , 8);
     }
 
     ///////////////////////////// output is binary string /////////
     
-    String readbyte(Long addr)
+    String loadbyte(long addr)
     {
-        ;
+        return memory[(int)addr];
     }
-
+    String loadword(long addr)
+    {
+        return memory[(int)addr+1]+memory[(int)addr];
+    }
+    String loadhalf(long addr)
+    {
+        return memory[(int)addr+3]+memory[(int)addr+2]+memory[(int)addr+1]+memory[(int)addr];
+    }
     
 
 }
