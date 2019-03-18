@@ -16,7 +16,7 @@ public class decode {
 	int rs2value;
 	
 
-	decode(String A,register[] REG)
+	decode(String A,register[] REg)
 	{
 		String array = A;
 		
