@@ -41,8 +41,9 @@ public class assembler
 		static int line_no = 0;
 		static ArrayList<label> labels = new ArrayList<label>();
 		static ArrayList<instruction> instructions = new ArrayList<instruction>();
+		static instruction[] instructions_temp;
 
-		static void assemble() throws IOException
+		static <instructions> void assemble() throws IOException
 			{
 				File file = new File(
 						"C:\\Users\\ramak\\Desktop\\Cs204 project\\RISC-V-Simulator\\src\\cornflakes\\assembler\\test.s");
@@ -61,6 +62,7 @@ public class assembler
 										line = br.readLine();
 										LexicalAnalyser temp2 = new LexicalAnalyser(line);
 										parse_instruction(temp2);
+										continue;
 									}
 
 							} else if (temp.Tokens.size() != 0)
@@ -69,8 +71,9 @@ public class assembler
 							}
 						line_no++;
 					}
-				final Object[] instructions_temp = instructions.toArray();
-				// instruction.assign_labels((instruction[]) instructions_temp);
+				instructions_temp = instructions.toArray(new instruction[instructions.size()]);
+				instruction.assign_labels(instructions_temp);
+				// instructions.removeAll(instruction);
 			}
 
 		static void parse_instruction(LexicalAnalyser tokenlist)
@@ -308,9 +311,9 @@ public class assembler
 				// PrintWriter p=null;
 				PrintWriter p = new PrintWriter(
 						"C:\\Users\\ramak\\Desktop\\Cs204 project\\RISC-V-Simulator\\src\\cornflakes\\assembler\\output.mc");
-				for (int i = 0; i < assembler.instructions.size(); i++)
+				for (int i = 0; i < assembler.instructions_temp.length; i++)
 					{
-						Long decimal = Long.parseLong(assembler.instructions.get(i).binary, 2);
+						Long decimal = Long.parseLong(assembler.instructions_temp[i].binary, 2);
 						// String hexStr = Integer.toString(decimal, 16);
 						// System.out.println(decimal.toHexString());
 						// System.out.println(String.format("0x%08X", decimal));

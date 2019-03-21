@@ -654,7 +654,7 @@ public class instruction
 										temp_2 = all[in];
 										if (temp_2.has_label)
 											{
-												if (temp_2.self_label == temp.required_label)
+												if (temp_2.self_label.equals(temp.required_label))
 													{
 														temp.substitute((in - ext) * 4, temp);
 													}
