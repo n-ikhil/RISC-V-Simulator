@@ -10,13 +10,15 @@ import java.io.FileNotFoundException;
 import java.util.Scanner; 
 
 public class datapath {
+	static register REG[];
+	
 	
 	public static void main(String Args[]) throws Exception
 	{
 		File file = new File("/home/yashaswi/yash.txt");
 		Scanner sc =  new Scanner(file);
 		System.out.print("sdfjsgd\n");
-		static register REG[];
+		
 		REG = new register[32];
 		for(int h=0;h<32;h++)
 		{
