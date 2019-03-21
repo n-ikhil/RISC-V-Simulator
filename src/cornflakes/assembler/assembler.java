@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +63,7 @@ public class assembler
 										parse_instruction(temp2);
 									}
 
-							} else
+							} else if (temp.Tokens.size() != 0)
 							{
 								parse_instruction(temp);
 							}
@@ -136,6 +137,49 @@ public class assembler
 											}
 									}
 								instruction temp2 = new instruction(instr, r1, r2, r3);
+								instructions.add(temp2);
+							}
+
+						else if (temp == "u")
+							{
+								temp = tokenlist.Tokens.get(1);
+								int r1 = registers.indexOf(temp);
+								if (r1 == -1)
+									{
+										System.out.println("no such register found");
+									}
+								temp = tokenlist.Tokens.get(2);
+								int r2 = Integer.parseInt(temp);
+								instruction temp2 = new instruction(instr, r1, r2);
+								instructions.add(temp2);
+							} else if (temp == "sb")
+							{
+								temp = tokenlist.Tokens.get(1);
+								int r1 = registers.indexOf(temp);
+								if (r1 == -1)
+									{
+										System.out.println("no such register found");
+									}
+								temp = tokenlist.Tokens.get(2);
+								int r2 = registers.indexOf(temp);
+								if (r2 == -1)
+									{
+										System.out.println("no such register found");
+									}
+								temp = tokenlist.Tokens.get(3);
+								instruction temp2 = new instruction(instr, r1, r2, temp);
+								instructions.add(temp2);
+							} else if (temp == "uj")
+							{
+
+								temp = tokenlist.Tokens.get(1);
+								int r1 = registers.indexOf(temp);
+								if (r1 == -1)
+									{
+										System.out.println("no such register found");
+									}
+								temp = tokenlist.Tokens.get(2);
+								instruction temp2 = new instruction(instr, r1, temp);
 								instructions.add(temp2);
 							}
 					}
@@ -245,11 +289,13 @@ public class assembler
 						return "sb";
 					case "bgeu":
 						return "sb";
+					case "jal":
+						return "uj";
 					}
 				return null;
 			}
 
-		public static void main(String args[])
+		public static void main(String args[]) throws IOException
 			{
 				try
 					{
@@ -259,12 +305,20 @@ public class assembler
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				// PrintWriter p=null;
+				PrintWriter p = new PrintWriter(
+						"C:\\Users\\ramak\\Desktop\\Cs204 project\\RISC-V-Simulator\\src\\cornflakes\\assembler\\output.mc");
 				for (int i = 0; i < assembler.instructions.size(); i++)
 					{
-						Integer decimal = Integer.parseInt(assembler.instructions.get(i).binary, 2);
+						Long decimal = Long.parseLong(assembler.instructions.get(i).binary, 2);
 						// String hexStr = Integer.toString(decimal, 16);
 						// System.out.println(decimal.toHexString());
-						System.out.println(String.format("0x%08X", decimal));
+						// System.out.println(String.format("0x%08X", decimal));
+						// PrintWriter writer = nul
+						p.println(String.format("0x%08X", decimal));
+						// p.flush();
+
 					}
+				p.close();
 			}
 	}

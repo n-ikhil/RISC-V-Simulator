@@ -48,7 +48,7 @@ class LexicalAnalyser
 
 							}
 						if (foundcomment)
-							break;
+							return;
 						if (isDelimitter)
 							{
 								isDelimitter = false;
@@ -58,8 +58,8 @@ class LexicalAnalyser
 							{
 								label = str.toString();
 								str.delete(0, str.length());
-								islabel = false;
-								//return;
+								islabel = true;
+								return;
 							} else
 							{
 								str.append(temp);
@@ -68,13 +68,14 @@ class LexicalAnalyser
 				Tokens.add(str.toString()); // adding the last token
 				str.delete(0, str.length());
 			}
-		
-		/*  public static void main(String args[]) {
-		  
-		  LexicalAnalyser l=new LexicalAnalyser("label:add X1 X2 X3 "); 
-		  System.out.println(l.label);
-		  System.out.println(l.Tokens.get(3));
-		  
-		  
-		  }*/
+
+		/*
+		 * public static void main(String args[]) {
+		 * 
+		 * LexicalAnalyser l=new LexicalAnalyser("label:add X1 X2 X3 ");
+		 * System.out.println(l.label); System.out.println(l.Tokens.get(3));
+		 * 
+		 * 
+		 * }
+		 */
 	}
