@@ -793,4 +793,9 @@ public class decode {
 		return id;
 	}
 	
+	public int immreturn() {
+		
+		return imm;
+	}
+	
 }
