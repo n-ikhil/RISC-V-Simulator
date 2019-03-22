@@ -39,11 +39,11 @@ public class primary_memory
     {
         return memory[(int)addr];
     }
-    String loadword(long addr)
+    String loadhalf(long addr)
     {
         return memory[(int)addr+1]+memory[(int)addr];
     }
-    String loadhalf(long addr)
+    String loadword(long addr)
     {
         return memory[(int)addr+3]+memory[(int)addr+2]+memory[(int)addr+1]+memory[(int)addr];
     }
