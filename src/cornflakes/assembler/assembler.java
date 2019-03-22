@@ -62,7 +62,7 @@ public class assembler
 										line = br.readLine();
 										LexicalAnalyser temp2 = new LexicalAnalyser(line);
 										parse_instruction(temp2);
-										continue;
+										// continue;
 									}
 
 							} else if (temp.Tokens.size() != 0)
