@@ -43,10 +43,9 @@ public class assembler
 		static ArrayList<instruction> instructions = new ArrayList<instruction>();
 		static instruction[] instructions_temp;
 
-		static <instructions> void assemble() throws IOException
+		static <instructions> void assemble(String file_location) throws IOException
 			{
-				File file = new File(
-						"C:\\Users\\ramak\\Desktop\\Cs204 project\\RISC-V-Simulator\\src\\cornflakes\\assembler\\test.s");
+				File file = new File(file_location);
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String line;
 				while ((line = br.readLine()) != null)
@@ -298,11 +297,11 @@ public class assembler
 				return null;
 			}
 
-		public static void main(String args[]) throws IOException
+		public static void main(String file_location[]) throws IOException
 			{
 				try
 					{
-						assembler.assemble();
+						assembler.assemble(file_location[0]);
 					} catch (IOException e)
 					{
 						// TODO Auto-generated catch block
@@ -310,7 +309,7 @@ public class assembler
 					}
 				// PrintWriter p=null;
 				PrintWriter p = new PrintWriter(
-						"C:\\Users\\ramak\\Desktop\\Cs204 project\\RISC-V-Simulator\\src\\cornflakes\\assembler\\output.mc");
+						"output.mc");
 				for (int i = 0; i < assembler.instructions_temp.length; i++)
 					{
 						Long decimal = Long.parseLong(assembler.instructions_temp[i].binary, 2);
