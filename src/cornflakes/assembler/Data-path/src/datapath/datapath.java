@@ -50,7 +50,7 @@ public class datapath {
 			//System.out.print(type);
 			switch(type)
 			{
-			case 1 : //R
+			case 1 :                                                       //R
 				int rs1 = D.rs1return();
 				int rs2 = D.rs2return();
 				int rd = D.rdreturn();
@@ -61,7 +61,7 @@ public class datapath {
 					
 				break;
 				
-			case 2 : //I
+			case 2 :                                                      //I
 				int rs1 = D.rs1return();
 				int rs2 = D.rs2return();
 				int id  = D.idreturn();
@@ -71,7 +71,7 @@ public class datapath {
 				
 				break;	
 				
-			case 3 : //S
+			case 3 :                                                     //S
 		                int rs1 = D.rs1return();
 				int id = D.idreturn();
 				int imm = D.immreturn();
@@ -90,7 +90,7 @@ public class datapath {
 				
 				break;
 				
-			case 5 : //UJ
+			case 5 :                                                    //UJ
 				int rs1 = D.rs1return();
 				int id = D.idreturn();
 				int imm = D.immreturn();
@@ -99,7 +99,7 @@ public class datapath {
 				
 				break;
 				
-			case 6 : //U
+			case 6 :                                                    //U
 				int rs1 = D.rs1return();
 				int id = D.idreturn();
 				int imm = D.immreturn();
