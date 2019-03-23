@@ -51,28 +51,62 @@ public class datapath {
 			switch(type)
 			{
 			case 1 : //R
-				System.out.print("yes");
-					int rs1 = D.rs1return();
-					int rs2 = D.rs2return();
-					int rd = D.rdreturn();
-					int id = D.idreturn();
-					execute ex1 = new execute(id,rd,rs1,rs2);
-					int out = ex1.output;
-					REG[rd].x = out;
+				int rs1 = D.rs1return();
+				int rs2 = D.rs2return();
+				int rd = D.rdreturn();
+				int id = D.idreturn();
+				execute ex1 = new execute(id,rd,rs1,rs2);
+				int out = ex1.output;
+				REG[rd].x = out;
 					
-					
-					
-					break;
+				break;
 				
 			case 2 : //I
+				int rs1 = D.rs1return();
+				int rs2 = D.rs2return();
+				int id  = D.idreturn();
+				int imm = D.immreturn();	
+		                execute ex2 = new executei(id,rs1,imm);	
+				int out = ex2.output;
+				
+				break;	
 				
 			case 3 : //S
+		                int rs1 = D.rs1return();
+				int id = D.idreturn();
+				int imm = D.immreturn();
+				execute ex3 = new executes(id,rs1,imm);	
+				int out = ex3.output;
 				
+				break;
+					
 			case 4 : //SB
+				int rs1 = D.rs1return();
+				int rs2 =D.rs2return();
+				int id = D.idreturn();
+				int imm = D.immreturn();
+				execute ex4 = new executesb(id,rs1,rs2,imm);	
+				int out = ex4.output;
+				
+				break;
 				
 			case 5 : //UJ
+				int rs1 = D.rs1return();
+				int id = D.idreturn();
+				int imm = D.immreturn();
+				execute ex5 = new executeuj(id,rs1,imm);	
+				int out = ex5.output;
+				
+				break;
 				
 			case 6 : //U
+				int rs1 = D.rs1return();
+				int id = D.idreturn();
+				int imm = D.immreturn();
+				execute ex6 = new executeu(id,rs1,imm);	
+				int out = ex6.output;
+				
+				break;
 			}
 			k++;
 		}
