@@ -8,7 +8,7 @@ public class execute {
 	int id;
 	int output=0;
 	
-	execute (int id0, int rd, int rs1value, int rs2value)// R-type constructor
+	execute (int id0, int rs1value, int rs2value)// R-type constructor
 	{
 		id = id0;
 
