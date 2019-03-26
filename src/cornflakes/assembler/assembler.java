@@ -301,7 +301,7 @@ public class assembler
 			{
 				try
 					{
-						assembler.assemble(file_location[0]);
+						assembler.assemble(file_location);
 					} catch (IOException e)
 					{
 						// TODO Auto-generated catch block

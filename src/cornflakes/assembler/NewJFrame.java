@@ -4,14 +4,19 @@
  * and open the template in the editor.
  */
 package assembler;
+
 import assembler.assembler;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 /**
@@ -23,7 +28,9 @@ public class NewJFrame extends javax.swing.JFrame {
     String filename;
     String filedirectory;
     boolean firstsave = false;
-    String nfilename;
+    String outputfile;
+    String dir;
+    String file;
 
     /**
      * Creates new form NewJFrame
@@ -41,13 +48,13 @@ public class NewJFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jRadioButtonMenuItem1 = new javax.swing.JRadioButtonMenuItem();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jPanel2 = new javax.swing.JPanel();
+        Build = new javax.swing.JButton();
         MenuBar = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         New = new javax.swing.JMenuItem();
@@ -57,37 +64,62 @@ public class NewJFrame extends javax.swing.JFrame {
         Edit = new javax.swing.JMenu();
         Cut = new javax.swing.JMenuItem();
         Paste = new javax.swing.JMenuItem();
-        javax.swing.JMenu Build = new javax.swing.JMenu();
-
-        jMenuItem1.setText("jMenuItem1");
-
-        jRadioButtonMenuItem1.setSelected(true);
-        jRadioButtonMenuItem1.setText("jRadioButtonMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTextArea1.setBackground(new java.awt.Color(255, 255, 255));
         jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jTextArea1.setRows(5);
+        jTextArea1.setDisabledTextColor(new java.awt.Color(255, 255, 255));
+        jTextArea1.setSelectedTextColor(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(jTextArea1);
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        jTextArea3.setEditable(false);
+        jTextArea3.setColumns(20);
+        jTextArea3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        jTextArea3.setRows(5);
+        jScrollPane3.setViewportView(jTextArea3);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 552, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 489, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 355, Short.MAX_VALUE)
-            .addComponent(jScrollPane2)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 473, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+
+        Build.setText("Build");
+        Build.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuildActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(Build, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(Build, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jMenu1.setText("File");
@@ -136,14 +168,6 @@ public class NewJFrame extends javax.swing.JFrame {
 
         MenuBar.add(Edit);
 
-        Build.setText("Build");
-        Build.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BuildActionPerformed(evt);
-            }
-        });
-        MenuBar.add(Build);
-
         setJMenuBar(MenuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -151,15 +175,20 @@ public class NewJFrame extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // MenuBar.add(jButton1);
     private void NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewActionPerformed
         // TODO add your handling code here:
         jTextArea1.setText("");
@@ -190,60 +219,13 @@ public class NewJFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_OpenActionPerformed
 
-    private void BuildActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildActionPerformed
-         if (firstsave == false) {
-            SaveAsActionPerformed(evt);
-           // firstsave = true;
-        }
-        try {
-            FileWriter filewriter = new FileWriter(filename);
-            String content = jTextArea1.getText();
-            content = content.replaceAll("(?!\\r)\\n", "\r\n");
-            filewriter.write(content);
-//filewriter.write(jTextArea1.getText());
-            setTitle(filename);
-            filewriter.close();
-            filewriter.close();
-        } catch (IOException e) {
-            System.out.println("File not found");
-        }
-
-        int loc=filename.indexOf('.');
-        nfilename=filename.substring(0,loc)+".mc";
-        System.out.println(nfilename);
-        /*public static void main(String file_location[]) throws IOException
-			{
-				try
-					{
-						assembler.assemble(file_location[0]);
-					} catch (IOException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				// PrintWriter p=null;
-				PrintWriter p = new PrintWriter(
-						"output.mc");
-				for (int i = 0; i < assembler.instructions_temp.length; i++)
-					{
-						Long decimal = Long.parseLong(assembler.instructions_temp[i].binary, 2);
-						// String hexStr = Integer.toString(decimal, 16);
-						// System.out.println(decimal.toHexString());
-						// System.out.println(String.format("0x%08X", decimal));
-						// PrintWriter writer = nul
-						p.println(String.format("0x%08X", decimal));
-						// p.flush();
-
-					}
-				p.close();
-			}*/
-    }//GEN-LAST:event_BuildActionPerformed
-
     private void SaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveAsActionPerformed
         FileDialog fileDialog = new FileDialog(NewJFrame.this, "Save File", FileDialog.SAVE);
         fileDialog.setVisible(true);
         if (fileDialog.getFile() != null) {
             filename = fileDialog.getDirectory() + fileDialog.getFile();
+            file = fileDialog.getFile();
+            dir = fileDialog.getDirectory();
             setTitle(filename);
         }
         try {
@@ -257,14 +239,14 @@ public class NewJFrame extends javax.swing.JFrame {
         } catch (IOException e) {
             System.out.println("File not found");
         }
-        firstsave=true;
+        firstsave = true;
     }//GEN-LAST:event_SaveAsActionPerformed
 
     private void SaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveActionPerformed
         // TODO add your handling code here:
         if (firstsave == false) {
             SaveAsActionPerformed(evt);
-           // firstsave = true;
+            // firstsave = true;
         }
         try {
             FileWriter filewriter = new FileWriter(filename);
@@ -281,6 +263,55 @@ public class NewJFrame extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_SaveActionPerformed
+
+    private void BuildActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildActionPerformed
+        // TODO add your handling code here:
+        SaveActionPerformed(evt);
+        try {
+            assembler.assemble(filename);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // PrintWriter p=null;
+        //creating output filename
+        int temp = file.indexOf('.');
+        outputfile = dir + file.substring(0, temp) + ".mc";
+        PrintWriter p;
+
+        try {
+            p = new PrintWriter(outputfile);
+            for (int i = 0; i < assembler.instructions_temp.length; i++) {
+                Long decimal = Long.parseLong(assembler.instructions_temp[i].binary, 2);
+                // String hexStr = Integer.toString(decimal, 16);
+                // System.out.println(decimal.toHexString());
+                // System.out.println(String.format("0x%08X", decimal));
+                // PrintWriter writer = nul
+                p.println(String.format("0x%08X", decimal));
+
+                // p.flush();
+            }
+            p.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        jTextArea3.setEditable(true);
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(outputfile));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+                jTextArea3.setText(sb.toString());
+
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("File not found");
+        }
+        jTextArea3.setEditable(false);
+    }//GEN-LAST:event_BuildActionPerformed
 
     /**
      * @param args the command line arguments
@@ -319,6 +350,7 @@ public class NewJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton Build;
     private javax.swing.JMenuItem Cut;
     private javax.swing.JMenu Edit;
     private javax.swing.JMenuBar MenuBar;
@@ -328,12 +360,11 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem Save;
     private javax.swing.JMenuItem SaveAs;
     private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
     // End of variables declaration//GEN-END:variables
 }
