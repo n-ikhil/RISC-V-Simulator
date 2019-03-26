@@ -397,10 +397,52 @@ public class execution
                     case 3:
                     {
                         ///
+                        switch(type)
+                        {
+                        case 1 :
+                        	execute.executer(id,mem.ra,mem.rb); // R-type
+                        	mem.rx = execute.output;
+                        	break;
+                        	
+                        case 2 :
+                        	execute.executei(id,mem.ra,mem.iv); // I-type
+                        	int k = execute.output;
+                        	if(id == 50) // jalr
+                        	{
+                        		mem.rx = mem.pc;
+                        		mem.pc = k*2 - 4;
+                        	}
+                        	
+                        	break;
+                        	
+                        case 3 :
+                        	execute.executeS(id,mem.ra,mem.iv); // S-type
+                        	mem.rx = execute.output;
+                        	break;
+                        	
+                        case 4 :
+                        	execute.executeu(id,mem.ra,mem.iv); // U-type
+                        	mem.rx = execute.output;
+                        	break;
+                        	
+                        case 5 :
+                        	execute.executeuj(id,mem.ra,mem.iv); // UJ-type
+                        	mem.rx = mem.pc;
+                        	mem.pc = mem.pc + mem.iv*2 - 4;
+                        	break;
+                        	
+                        case 6 :
+                        	execute.executesb(id,mem.ra,mem.rb,mem.iv); // SB-type
+                        	mem.rx = execute.output;
+                        	if(mem.rx == 1)
+                        	{
+                        		mem.pc = mem.iv*2 + mem.pc - 4;
+                        	}
+                        	break;
+                        	
+                        }
                         
-                        mem.rx=execute.executefunc(id,mem.ra,mem.rb,mem.iv);
                         stage++;
-                        //System.out.println(id);
                         if(pipelined) return;
                     }
                     case 4:
@@ -416,16 +458,41 @@ public class execution
                             case 1: // write to reg without memeory access;
                                     {
                                         mem.ry=mem.rx;
+                                        
                                         break;
                                     }
                             case 2: // write to memory
                                     {
-                                        mem.storeword(mem.rx, mem.rb);//change for half and byte;
+                                    	switch(id)
+                                    	{
+                                    	
+                                    	case 1:mem.storeword(mem.rx, mem.rb);//change for half and byte;
+                                    	
+                                    	case 2:mem.storehalf(mem.rx, mem.rb);
+                                    		
+                                    	case 3:mem.storeword(mem.rx, mem.rb);
+                                    	
+                                    	}
+                                    	
+                                        
                                         break;
                                     }
                             case 3://read from memory
                                     {
-                                        mem.ry=mem.loadword(mem.rx);
+                                    	switch(id)
+                                    	{
+                                    	
+                                    	case 24:
+                                    		mem.ry = mem.loadbyte(mem.rx, mem.ry);
+                                    		
+                                    	case 25:
+                                    		mem.ry = mem.loadhalf(mem.rx, mem.ry);
+                                    		
+                                    	case 26:
+                                    		 mem.ry=mem.loadword(mem.rx, mem.ry);
+                                    		
+                                    	}
+                                       
                                         break;
                                     }
                         }
