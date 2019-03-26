@@ -37,7 +37,7 @@ public class tes_main
                             {
                                     temp = temp + "0";
                             }
-                            mem.storeword(mem_index,temp+bin_line);
+                            mem.storewordstr(mem_index,temp+bin_line);
                             //System.out.println(mem.loadword(mem_index)+"p");
                             mem_index=mem_index+4;
                             

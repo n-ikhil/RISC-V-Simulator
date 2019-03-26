@@ -28,17 +28,16 @@ public class datapath {
 		mem.pc=0;
 		execution[] ar = new execution[6];
 		
-
+		//test case 
 		mem.register[1]=10;
 		mem.register[2]=20;
 		mem.register[3]=30;
  
-		while(check(mem.loadword(mem.pc),ar))
+		while(check(mem.loadwordstr(mem.pc),ar))
 		{
-			String instr=mem.loadword(mem.pc);
-			mem.ir=instr;mem.pc=mem.pc+4;//stage 1
+			mem.ir=mem.loadwordstr(mem.pc);
 			ar[0]=new execution(mem,piplined);//if instr=="000000000" retired=true
-
+			mem.pc = mem.pc + 4;// stage 1 till here
 			for(int instr_stg=0;instr_stg<5;instr_stg++)
 			{
 				
@@ -53,7 +52,7 @@ public class datapath {
 			{
 				ar[shiftbyone+1]=ar[shiftbyone];
 			}
-
+ 
 
 		}
 		for(int uio:mem.register)

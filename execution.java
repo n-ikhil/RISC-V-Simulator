@@ -416,7 +416,6 @@ public class execution
                             case 1: // write to reg without memeory access;
                                     {
                                         mem.ry=mem.rx;
-                                        
                                         break;
                                     }
                             case 2: // write to memory

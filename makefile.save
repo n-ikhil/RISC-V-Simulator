@@ -1,0 +1,9 @@
+all:run
+	java tes_main test.s
+run:comp
+	javac tes_main.java
+comp:  file
+	rm *.classfile: com2
+	java assembler
+com2:
+	javac assembler.java

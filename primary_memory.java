@@ -27,13 +27,26 @@ public class primary_memory
     }
     //////////////////////////////////////////////////////////////////
     //  input is binary string  //
+    String loadbytestr(int addr) {
+        return memory[addr];
+    }
+
+    String loadhalfstr(int addr) {
+        return memory[addr + 1] + memory[addr];
+    }
+
+    String loadwordstr(int addr) {
+
+        // System.out.println(addr+memory[addr+3]+memory[addr+2]+memory[addr+1]+memory[addr]);
+        return memory[addr + 3] + memory[addr + 2] + memory[addr + 1] + memory[addr];
+    }
     
-    void storebyte(int addr,String byte_in)
+    void storebytestr(int addr,String byte_in)
     {
         memory[addr]=byte_in.substring(0,8);
 
     }
-    void storeword(int addr,String word_in)
+    void storewordstr(int addr,String word_in)
     {
         //little endian//
         //System.out.println(word_in);
@@ -44,7 +57,7 @@ public class primary_memory
         //System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] + memory[addr]+"-");
         
     }
-    void storehalf(int addr,String half_in)
+    void storehalfstr(int addr,String half_in)
     {
         memory[addr]=half_in.substring(8 ,16);
         memory[addr+1]=half_in.substring(0 , 8);
@@ -52,20 +65,73 @@ public class primary_memory
 
     ///////////////////////////// output is binary string /////////
     
-    String loadbyte(int addr)
+    int loadbyte(int addr)
     {
-        return memory[addr];
+        int itemp = Integer.parseInt(memory[addr], 2);
+        return itemp;
     }
-    String loadhalf(int addr)
+    int loadhalf(int addr)
     {
-        return memory[addr+1]+memory[addr];
+        String rets= memory[addr+1]+memory[addr];
+        int itemp = Integer.parseInt(rets, 2);
+        return itemp;
     }
-    String loadword(int addr)
+    int loadword(int addr)
     {
 
         //System.out.println(addr+memory[addr+3]+memory[addr+2]+memory[addr+1]+memory[addr]);
-        return memory[addr+3]+memory[addr+2]+memory[addr+1]+memory[addr];
+        String rets=memory[addr+3]+memory[addr+2]+memory[addr+1]+memory[addr];
+        int itemp = Integer.parseInt(rets, 2);
+        return itemp;
     }
+
+    void storebyte(int addr, int num) 
+    {   
+        String bin_line = Integer.toBinaryString(num);
+        String temp = "";
+        for (int i = 0; i < 8 - bin_line.length(); i++) {
+            if(num>=0)temp = temp + "0";
+            else temp=temp+"1";
+        }
+        bin_line=temp+bin_line;
+        memory[addr] = bin_line;
+
+    }
+
+    void storeword(int addr, int num) {
+        // little endian//
+        // System.out.println(word_in);
+        String bin_line = Integer.toBinaryString(num);
+        String temp = "";
+        for (int i = 0; i < 32 - bin_line.length(); i++) {
+            if(num>=0)temp = temp + "0";
+            else temp=temp+"1";
+        }
+        bin_line=temp+bin_line;
+        memory[addr] = bin_line.substring(24, 32);
+        memory[addr + 1] = bin_line.substring(16, 24);
+        memory[addr + 2] = bin_line.substring(8, 16);
+        memory[addr + 3] = bin_line.substring(0, 8);
+        // System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] +
+        // memory[addr]+"-");
+
+    }
+
+    void storehalf(int addr, int num) {
+       String bin_line = Integer.toBinaryString(num);
+        String temp = "";
+        for (int i = 0; i < 16 - bin_line.length(); i++) {
+            if(num>=0)temp = temp + "0";
+            else temp=temp+"1";
+        }
+        bin_line=temp+bin_line;
+        memory[addr] = bin_line.substring(8, 16);
+        memory[addr + 1] = bin_line.substring(0, 8);
+    }
+
+    ///////////////////////////// output is binary string /////////
+
+    
     
 
 }
