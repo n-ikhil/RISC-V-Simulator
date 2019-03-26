@@ -59,7 +59,7 @@ class LexicalAnalyser
 								label = str.toString();
 								str.delete(0, str.length());
 								islabel = true;
-								return;
+								//return;
 							} else
 							{
 								str.append(temp);
