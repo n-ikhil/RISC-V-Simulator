@@ -23,7 +23,7 @@ class LexicalAnalyser
 		StringBuilder word = new StringBuilder();
 
 		// ArrayList<Integer> tokens = new ArrayList<>(Integer);
-		LexicalAnalyser(String line)
+		LexicalAnalyser(String line,boolean assemblydirective)
 			{
 				boolean foundcomment = false;
 				boolean isDelimitter = false;
@@ -54,7 +54,7 @@ class LexicalAnalyser
 								isDelimitter = false;
 								Tokens.add(str.toString());
 								str.delete(0, str.length());
-							} else if (islabel)
+							} else if (islabel&&!assemblydirective)
 							{
 								label = str.toString();
 								str.delete(0, str.length());
