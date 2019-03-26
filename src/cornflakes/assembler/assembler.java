@@ -297,7 +297,7 @@ public class assembler
 				return null;
 			}
 
-		public static void main(String file_location[]) throws IOException
+		/*public static void main(String file_location[]) throws IOException
 			{
 				try
 					{
@@ -322,5 +322,5 @@ public class assembler
 
 					}
 				p.close();
-			}
+			}*/
 	}
