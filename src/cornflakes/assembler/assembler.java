@@ -43,7 +43,7 @@ public class assembler {
     ArrayList<label> labels = new ArrayList<label>();
     ArrayList<instruction> instructions = new ArrayList<instruction>();
     instruction[] instructions_temp;
-    int data_address = 100000;
+    int data_address = 1000;
     Map< String, Integer> data_map = new HashMap< String, Integer>();
 
     <instructions> void assemble(String file_location, primary_memory memory) throws IOException {
@@ -61,6 +61,8 @@ public class assembler {
         }
         //line =br.readLine();
         while (line != null) {
+            if(line=="\n")
+                continue;
             LexicalAnalyser temp = new LexicalAnalyser(line, false);
             if (temp.islabel == true) {
                 label temp1 = new label(line_no, temp.label);
@@ -87,9 +89,9 @@ public class assembler {
     void parse_directives(String line, primary_memory memory) {
         LexicalAnalyser tokenlist = new LexicalAnalyser(line, true);
         String label = tokenlist.Tokens.get(0);
-        if (".word".equals(tokenlist.Tokens.get(1))) {
+        if ("word".equals(tokenlist.Tokens.get(2))) {
             data_map.put(label, new Integer(data_address));
-            for (int i = 2; i < tokenlist.Tokens.size(); i++) {
+            for (int i = 3; i < tokenlist.Tokens.size(); i++) {
                 memory.storeword(data_address, Integer.parseInt(tokenlist.Tokens.get(i)));
                 data_address += 4;
 
@@ -143,6 +145,7 @@ public class assembler {
                     r2 = data_map.get(temp);
                     instruction temp2 = new instruction(instr, r1, 0, r2);
                     instructions.add(temp2);
+                    return;
                 }
                 if (r2 == -1) {
                     try {

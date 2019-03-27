@@ -5,8 +5,8 @@ public class primary_memory
 {
     //
     public String[] memory;
-    final int stack_start=268435452;//2^28-3-1
-    final int heap_start=134217728;//2^28
+    final int stack_start=268428;//2^28-3-1
+    final int heap_start=168435;//2^28
     final int instruction_start=0;//no reserved,obvio !!
     public int[] register;
     public String ir;
@@ -52,8 +52,8 @@ public class primary_memory
     //the above values are chosen arbitrarily
     primary_memory()
     {       
-        memory=new String[268435]; //max-memory=2^28;
-        for(int i=0;i<268435;i++) memory[i]="00000000";
+        memory=new String[2684355]; //max-memory=2^28;
+        for(int i=0;i<2684355;i++) memory[i]="00000000";
         register=new int[32];
 
         for(int i=0;i<32;i++)
@@ -64,6 +64,7 @@ public class primary_memory
         register[2]=stack_start;
         register[3]=heap_start;
         pc=ra=rb=rx=ry=rz=0;
+        
         ///////////////////////////////
         //memory[heap_start]="00000001";
         ///////////////////////////////
