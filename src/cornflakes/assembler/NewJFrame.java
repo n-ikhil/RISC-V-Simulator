@@ -74,7 +74,6 @@ public class NewJFrame extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jTextArea1.setBackground(new java.awt.Color(255, 255, 255));
         jTextArea1.setColumns(20);
         jTextArea1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jTextArea1.setRows(5);
@@ -127,6 +126,11 @@ public class NewJFrame extends javax.swing.JFrame {
         );
 
         Run.setText("Run");
+        Run.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RunActionPerformed(evt);
+            }
+        });
 
         Build.setText("Build");
         Build.addActionListener(new java.awt.event.ActionListener() {
@@ -336,6 +340,10 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         jTextArea3.setEditable(false);
     }//GEN-LAST:event_BuildActionPerformed
+
+    private void RunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RunActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RunActionPerformed
 
     /**
      * @param args the command line arguments

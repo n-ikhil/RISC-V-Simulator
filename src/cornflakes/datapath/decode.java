@@ -1,10 +1,8 @@
 package datapath;
-
-import datapath.register;
 import java.util.*;
 import java.io.File;
 
-
+import assembler.primary_memory;
 public class decode {
 
 	String array;
@@ -17,36 +15,7 @@ public class decode {
 	int rs1value;
 	int rs2value;
 	register[] REG;
-	static String findTwoscomplement(StringBuffer str) 
-    { 
-        int n = str.length(); 
-       
-        // Traverse the string to get first '1' from 
-        // the last of string 
-        int i; 
-        for (i = n-1 ; i >= 0 ; i--) 
-            if (str.charAt(i) == '1') 
-                break; 
-       
-        // If there exists no '1' concat 1 at the 
-        // starting of string 
-        if (i == -1) 
-            return "1" + str; 
-       
-        // Continue traversal after the position of 
-        // first '1' 
-        for (int k = i-1 ; k >= 0; k--) 
-        { 
-            //Just flip the values 
-            if (str.charAt(k) == '1') 
-                str.replace(k, k+1, "0"); 
-            else
-                str.replace(k, k+1, "1"); 
-        } 
-       
-        // return the modified string 
-        return str.toString(); 
-    } 
+	
 
 	decode(String A,register[] REG1)
 	{
@@ -54,10 +23,15 @@ public class decode {
 		REG = REG1;
 		String opcode = array.substring(0, 7);
 		String fun3 = array.substring(12, 15);
-		String rds,rs1s,imms,rs2s,imms1,imms2;
-		String fun7 = array.substring(25, 31);
-		String immidiate = array.substring(20, 30);
-		String sign = array.substring(31);
+		String rds,rs1s,imms,rs2s,imms1,imms2,fun7s;
+		String fun7 = array.substring(25, 32);
+		String immidiate = array.substring(20, 32);
+	
+		
+		
+		
+		
+		
 		
 		switch(opcode)
 		{
@@ -80,17 +54,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(s,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 								
 								
 							case "001" : // lh instruction
@@ -103,17 +67,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 								
 			
 							case "010" : // lw 
@@ -126,18 +80,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
-								
+								imm=Integer.parseInt(imms,2);
 			
 							case "011" : // ld
 								id=4;
@@ -149,17 +92,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 			
 							case "100" : // lbu
 								id=5;
@@ -171,17 +104,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "101" : // lhu
 								id=6;
 								System.out.print(id);
@@ -192,17 +115,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "110" : // lwu
 								id=7;
 								System.out.print(id);
@@ -212,17 +125,7 @@ public class decode {
 								rs1s= array.substring(15,19);
 								rs1=Integer.parseInt(rs1s,2);
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 						}
 		
 		case "0001111" : switch(fun3)
@@ -237,17 +140,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 								
 							case "001" : // fence.i
 								id=9;
@@ -259,17 +152,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 						}
 		
 		case "0010011" : switch(fun3)
@@ -283,17 +166,7 @@ public class decode {
 								rs1s= array.substring(15,19);
 								rs1=Integer.parseInt(rs1s,2);
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "001" : // slli
 								id=11;
 								System.out.print(id);
@@ -303,17 +176,7 @@ public class decode {
 								rs1s= array.substring(15,19);
 								rs1=Integer.parseInt(rs1s,2);
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "010" : // slti
 								id=12;
 								System.out.print(id);
@@ -324,17 +187,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "011" : // sltiu
 								id=13;
 								System.out.print(id);
@@ -345,17 +198,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "100" : // xori
 								id=14;
 								System.out.print(id);
@@ -366,43 +209,16 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "101" : switch(fun7)
 										{
 											case "0000000" : // srli
 												id=15;
 												System.out.print(id);
-												type=2;
-												rds= array.substring(7,11);
-												rd=Integer.parseInt(rds,2);
-												rs1s= array.substring(15,19);
-												rs1=Integer.parseInt(rs1s,2);
-												rs1value=REG[rs1].x;
-												imms= array.substring(20 ,24);
-												imm=Integer.parseInt(imms,2);
-												
 												
 											case "0100000" : // srai
 												id=16;
 												System.out.print(id);
-												type=2;
-												rds= array.substring(7,11);
-												rd=Integer.parseInt(rds,2);
-												rs1s= array.substring(15,19);
-												rs1=Integer.parseInt(rs1s,2);
-												rs1value=REG[rs1].x;
-												imms= array.substring(20 ,24);
-												imm=Integer.parseInt(imms,2);
 												
 										}
 								
@@ -416,17 +232,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "111" : // andi
 								id=18;
 								System.out.print(id);
@@ -437,17 +243,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 						}
 		
 		case "0010111" : // auipc
@@ -457,17 +253,7 @@ public class decode {
 			rds= array.substring(7,11);
 			rd=Integer.parseInt(rds,2);
 			imms= array.substring(12 ,31);
-			if(sign=="1")
-			{
-				 StringBuffer str = new StringBuffer(imms); 
-			     String s=findTwoscomplement(str); 
-			     imm=Integer.parseInt(s,2);  
-			     imm=imm*-1;
-			}
-			else
-			{
-				 imm=Integer.parseInt(imms,2); 
-			}
+			imm=Integer.parseInt(imms,2);
 			
 		case "0011011" : switch(fun3)
 						{
@@ -481,17 +267,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 								
 							case "001" :
 								id=21;
@@ -503,44 +279,17 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);// slliw
 								
 							case "101" : switch(fun7)
 										{
 											case "0000000" : // srliw
 												id=22;
 												System.out.print(id);
-												type=2;
-												rds= array.substring(7,11);
-												rd=Integer.parseInt(rds,2);
-												rs1s= array.substring(15,19);
-												rs1=Integer.parseInt(rs1s,2);
-												rs1value=REG[rs1].x;
-												imms= array.substring(20 ,24);
-												imm=Integer.parseInt(imms,2);
-												
-												
-												case "0100000" : // sraiw
+											
+											case "0100000" : // sraiw
 												id=23;
 												System.out.print(id);
-												type=2;
-												rds= array.substring(7,11);
-												rd=Integer.parseInt(rds,2);
-												rs1s= array.substring(15,19);
-												rs1=Integer.parseInt(rs1s,2);
-												rs1value=REG[rs1].x;
-												imms= array.substring(20 ,24);
-												imm=Integer.parseInt(imms,2);
 										}
 						}
 		
@@ -559,17 +308,7 @@ public class decode {
 								imms1= array.substring(7 , 11);
 								imms2=array.substring(25 ,31);
 								imms=imms2.concat(imms1);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "001" : // sh
 								id=25;
 								System.out.print(id);
@@ -583,17 +322,7 @@ public class decode {
 								imms1= array.substring(7 , 11);
 								imms2=array.substring(25 ,31);
 								imms=imms2.concat(imms1);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "010" : // sw
 								id=26;
 								System.out.print(id);
@@ -607,17 +336,7 @@ public class decode {
 								imms1= array.substring(7 , 11);
 								imms2=array.substring(25 ,31);
 								imms=imms2.concat(imms1);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "011" : // sd
 								id=27;
 								System.out.print(id);
@@ -628,20 +347,10 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 						}
 		
-		case "0110011" : switch(fun3)
+		case "1100110" : switch(fun3)
 						{
 							//System.out.print("sswitch");
 							case "000" : 
@@ -677,19 +386,6 @@ public class decode {
 												rs2=Integer.parseInt(rs2s,2);
 												rs2value=REG[rs2].x;
 												break;
-												
-											case"0000001" : //mul
-												id=60;
-												System.out.print(id + "\n");
-												type=1; //R
-												rds= array.substring(7,11);
-												rd=Integer.parseInt(rds,2);
-												rs1s= array.substring(15,19);
-												rs1=Integer.parseInt(rs1s,2);
-												rs1value=REG[rs1].x;
-												rs2s= array.substring(20,24);
-												rs2=Integer.parseInt(rs2s,2);
-												rs2value=REG[rs2].x;
 												
 										}
 								break;
@@ -737,9 +433,7 @@ public class decode {
 								break;
 								
 								
-							case "100" : switch(fun7) 
-							{
-							case "0000000": //xor
+							case "100" : // xor
 								id=33;
 								System.out.print(id);
 								type=1; //R
@@ -752,21 +446,8 @@ public class decode {
 								rs2=Integer.parseInt(rs2s,2);
 								rs2value=REG[rs2].x;
 								break;
-							case "0000001": //div
-								id=61;
-								System.out.print(id);
-								type=1; //R
-								rds= array.substring(7,11);
-								rd=Integer.parseInt(rds,2);
-								rs1s= array.substring(15,19);
-								rs1=Integer.parseInt(rs1s,2);
-								rs1value=REG[rs1].x;
-								rs2s= array.substring(20,24);
-								rs2=Integer.parseInt(rs2s,2);
-								rs2value=REG[rs2].x;
-								break;
 								
-							}
+								
 							case "101" :  switch(fun7)
 										{
 											case "0000000" : // srl
@@ -945,31 +626,14 @@ public class decode {
 								rs2value=REG[rs2].x;                                   //to  be continued
 								String temp1 = array.substring(7, 11);
 								String temp2 = array.substring(25,31);
-								String t1=temp1.substring(0,3); //4-1
+								String t1=temp1.substring(0,3); //1-4
 								String t3=temp1.substring(4); //11
 								String t2= temp2.substring(1,6); //10-5
 								String t4=temp2.substring(0); //12
-								String t5=t4.concat(t3);
-								String t6=t5.concat(t2);
-								String t7=t6.concat(t1);
-								String t8="0";
-								String t9=t7.concat(t8);
-								imms= t9.substring(0 ,11);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								String t5=t4.concat(t3); 
 							case "001" : // bne
 								id=45;
 								System.out.print(id);
-								
 								
 							case "100" : // blt
 								id=46;
@@ -996,17 +660,7 @@ public class decode {
 			rs1=Integer.parseInt(rs1s,2);
 			//rs1value=REG[rs1].x;
 			imms= array.substring(20 ,31);
-			if(sign=="1")
-			{
-				 StringBuffer str = new StringBuffer(imms); 
-			     String s=findTwoscomplement(str); 
-			     imm=Integer.parseInt(s,2);  
-			     imm=imm*-1;
-			}
-			else
-			{
-				 imm=Integer.parseInt(imms,2); 
-			}
+			imm=Integer.parseInt(imms,2);	
 		case "1101111" : // jal
 			id=51;
 			System.out.print(id + "\n");
@@ -1044,17 +698,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "010" : // CSRRS
 								id=55;
 								System.out.print(id);
@@ -1065,17 +709,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "011" : // CSRRC
 								id=56;
 								System.out.print(id);
@@ -1086,17 +720,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "101" : // CSRRWI
 								id=57;
 								System.out.print(id);
@@ -1107,17 +731,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "110" : // CSRRSI
 								id=58;
 								System.out.print(id);
@@ -1128,17 +742,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 							case "111" : // CSRRCI
 								id=59;
 								System.out.print(id);
@@ -1149,17 +753,7 @@ public class decode {
 								rs1=Integer.parseInt(rs1s,2);
 								rs1value=REG[rs1].x;
 								imms= array.substring(20 ,31);
-								if(sign=="1")
-								{
-									 StringBuffer str = new StringBuffer(imms); 
-								     String s=findTwoscomplement(str); 
-								     imm=Integer.parseInt(s,2);  
-								     imm=imm*-1;
-								}
-								else
-								{
-									 imm=Integer.parseInt(imms,2); 
-								}
+								imm=Integer.parseInt(imms,2);
 						}
 		default :
 			System.out.print("shitt\n");

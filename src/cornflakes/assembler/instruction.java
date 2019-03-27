@@ -81,6 +81,15 @@ public class instruction
 					case "sraw":
 						rformat("0111011", "101", "0100000", r1, r2, r3);
 						break;
+					case "mul":
+						rformat("0110011", "000", "0000001", r1, r2, r3);
+						break;
+					case "div":
+						rformat("0110011", "100", "0000001", r1, r2, r3);
+						break;
+					case "rem":
+						rformat("0110011", "110", "0000001", r1, r2, r3);
+						break;
 					case "fence":
 						iformat("0001111", "000", "0000000", r1, r2, r3);
 						break;
@@ -322,7 +331,7 @@ public class instruction
 				String temp = new String();
 				binary_temp = new String[5];
 				binary_temp[0] = s1;
-				//// System.out.println(binary_temp[0]);
+				 System.out.println(r1+":"+r2+":"+r3);
 				temp = "";
 				binary_temp[1] = Integer.toBinaryString(r1);
 				for (int i = 0; i < 5 - binary_temp[1].length(); i++)
@@ -335,8 +344,8 @@ public class instruction
 				// System.out.println(temp);
 				temp = temp + binary_temp[1];
 				// System.out.println(temp);
-				// temp=temp.substring(temp.length()-5,temp.length());
-
+				//temp=temp.substring(temp.length()-5,temp.length());
+					//1:40
 				binary_temp[1] = temp;
 
 				temp = "";
@@ -382,6 +391,7 @@ public class instruction
 						binary = binary + binary_temp[temp_s];
 
 					}
+				System.out.println(binary);
 
 				wants_label = false;
 				return;
