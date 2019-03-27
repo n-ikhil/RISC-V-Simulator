@@ -45,9 +45,9 @@ public class assembler {
     instruction[] instructions_temp;
     int data_address = 100000;
     Map< String, Integer> data_map = new HashMap< String, Integer>();
-    primary_memory memory = new primary_memory();
+    
 
-    <instructions> void assemble(String file_location) throws IOException {
+    <instructions> void assemble(String file_location,primary_memory memory) throws IOException {
         File file = new File(file_location);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
@@ -55,7 +55,7 @@ public class assembler {
 
             line=br.readLine();
             while (!".text".equals(line)) {
-                parse_directives(line);
+                parse_directives(line,memory);
                 line=br.readLine();
             }
             line=br.readLine();
@@ -85,7 +85,7 @@ public class assembler {
         // instructions.removeAll(instruction);
     }
 
-    void parse_directives(String line) {
+    void parse_directives(String line,primary_memory memory) {
         LexicalAnalyser tokenlist = new LexicalAnalyser(line,true);
         String label = tokenlist.Tokens.get(0);
         if (".word".equals(tokenlist.Tokens.get(1))) {
@@ -311,7 +311,7 @@ public class assembler {
 
     public static void main(String file_location[]) throws IOException
 			{
-                            assembler obj =new assembler();
+                          /*  assembler obj =new assembler();
 				try
 					{
 						obj.assemble("C:\\Users\\ramak\\Desktop\\Risc v\\RISC-V-Simulator\\src\\cornflakes\\assembler\\test.s");
@@ -339,6 +339,6 @@ public class assembler {
                                 
                                 int a=obj.memory.loadword(100000);
                                 p.close();
-                                System.out.println(a);
+                                System.out.println(a);*/
 			}
 }

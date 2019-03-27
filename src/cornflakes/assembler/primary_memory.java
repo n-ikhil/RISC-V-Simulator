@@ -52,8 +52,8 @@ public class primary_memory
     //the above values are chosen arbitrarily
     primary_memory()
     {       
-        memory=new String[268435456]; //max-memory=2^28;
-        for(int i=0;i<268435456;i++) memory[i]="00000000";
+        memory=new String[268435]; //max-memory=2^28;
+        for(int i=0;i<268435;i++) memory[i]="00000000";
         register=new int[32];
 
         for(int i=0;i<32;i++)

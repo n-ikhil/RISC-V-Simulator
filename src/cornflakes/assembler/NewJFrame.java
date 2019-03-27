@@ -5,11 +5,13 @@
  */
 package assembler;
 
-import assembler.assembler;
+import assembler.*;
+import datapath.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -19,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -32,7 +35,43 @@ public class NewJFrame extends javax.swing.JFrame {
     String outputfile;
     String dir;
     String file;
-
+    public primary_memory memory = new primary_memory();
+Object[][] reg=new Object [][] {
+        {"x0", 0},
+        {"x1", 0},
+        {"x2", memory.register[2]},
+        {"x3", memory.register[3]},
+        {"x4", 0},
+        {"x5", 0},
+        {"x6", 0},
+        {"x7", 0},
+        {"x8", 0},
+        {"x9", 0},
+        {"x10", 0},
+        {"x11", 0},
+        {"x12", 0},
+        {"x13", 0},
+        {"x14", 0},
+        {"x15", 0},
+        {"x16", 0},
+        {"x17", 0},
+        {"x18", 0},
+        {"x19", 0},
+        {"x20", 0},
+        {"x21", 0},
+        {"x22", 0},
+        {"x23", 0},
+        {"x24", 0},
+        {"x25", 0},
+        {"x26", 0},
+        {"x27", 0},
+        {"x28", 0},
+        {"x29", 0},
+        {"x30", 0},
+        {"x31", 0},};
+    String[] column=new String [] {
+        "Register", "Value"
+    };
     /**
      * Creates new form NewJFrame
      */
@@ -55,7 +94,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea3 = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
-        Registers = new javax.swing.JList<>();
+        jTable1 = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         Run = new javax.swing.JButton();
         Build = new javax.swing.JButton();
@@ -70,14 +109,14 @@ public class NewJFrame extends javax.swing.JFrame {
         Paste = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         jTextArea1.setColumns(20);
         jTextArea1.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jTextArea1.setRows(5);
-        jTextArea1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jTextArea1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jTextArea1.setDisabledTextColor(new java.awt.Color(255, 255, 255));
         jTextArea1.setSelectedTextColor(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(jTextArea1);
@@ -86,15 +125,23 @@ public class NewJFrame extends javax.swing.JFrame {
         jTextArea3.setColumns(20);
         jTextArea3.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         jTextArea3.setRows(5);
-        jTextArea3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jTextArea3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jScrollPane3.setViewportView(jTextArea3);
 
-        Registers.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            reg,column
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Integer.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
         });
-        jScrollPane2.setViewportView(Registers);
+        //jTable1.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+        jTable1.setRowHeight(25);
+        jScrollPane2.setViewportView(jTable1);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -103,22 +150,26 @@ public class NewJFrame extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jScrollPane1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 242, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
+            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addComponent(jScrollPane2)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 723, Short.MAX_VALUE)
+            .addGap(0, 853, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -293,9 +344,9 @@ public class NewJFrame extends javax.swing.JFrame {
     private void BuildActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuildActionPerformed
         // TODO add your handling code here:
         SaveActionPerformed(evt);
-        assembler obj=new assembler();
+        assembler obj = new assembler();
         try {
-            obj.assemble(filename);
+            obj.assemble(filename,memory);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -308,7 +359,7 @@ public class NewJFrame extends javax.swing.JFrame {
         PrintWriter p;
 
         try {
-            p = new PrintWriter(new FileOutputStream(outputfile,false));
+            p = new PrintWriter(new FileOutputStream(outputfile, false));
             for (int i = 0; i < obj.instructions_temp.length; i++) {
                 Long decimal = Long.parseLong(obj.instructions_temp[i].binary, 2);
                 // String hexStr = Integer.toString(decimal, 16);
@@ -319,7 +370,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
                 // p.flush();
             }
-           // p.println(assembler.instructions_temp.length);
+            // p.println(assembler.instructions_temp.length);
             p.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -343,6 +394,39 @@ public class NewJFrame extends javax.swing.JFrame {
 
     private void RunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RunActionPerformed
         // TODO add your handling code here:
+        BuildActionPerformed(evt);
+        File file = new File(outputfile);
+        int mem_index=0;
+                try
+                {
+                    
+                    BufferedReader br = new BufferedReader(new FileReader(file));                
+                    String line;
+                    //System.out.println("No input");
+                    while ((line = br.readLine()) != null)
+                        {
+                            //System.out.println(line);
+                            long itemp = Long.parseLong(line.substring(2), 16);
+                            String bin_line = Long.toBinaryString(itemp);
+                            String temp="";
+                            for (int i = 0; i < 32 - bin_line.length(); i++)
+                            {
+                                    temp = temp + "0";
+                            }
+                            memory.storewordstr(mem_index,temp+bin_line);
+                            //System.out.println(mem.loadword(mem_index)+"p");
+                            mem_index=mem_index+4;
+                            
+                        }
+                }
+                catch(Exception e){System.out.println("No input");}
+
+        datapath.run(memory,false);
+        for(int i=0;i<32;i++)
+        {
+            reg[i][1]=memory.register[i];
+        }
+        jTable1.setModel(new DefaultTableModel(reg, column));
     }//GEN-LAST:event_RunActionPerformed
 
     /**
@@ -389,7 +473,6 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem New;
     private javax.swing.JMenuItem Open;
     private javax.swing.JMenuItem Paste;
-    private javax.swing.JList<String> Registers;
     private javax.swing.JButton Run;
     private javax.swing.JMenuItem Save;
     private javax.swing.JMenuItem SaveAs;
@@ -399,6 +482,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea3;
     // End of variables declaration//GEN-END:variables
