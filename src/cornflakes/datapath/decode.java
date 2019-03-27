@@ -2,7 +2,7 @@ package datapath;
 import java.util.*;
 import java.io.File;
 
-import assembler.primary_memory;
+
 public class decode {
 
 	String array;

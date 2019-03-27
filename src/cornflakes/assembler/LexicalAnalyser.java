@@ -12,7 +12,7 @@ class LexicalAnalyser
 
 		boolean ifDelimiter(char c)
 			{
-				if (c == ' ' || c == '\t' || c == '(' || c == ')' || c == ',')
+				if (c == ' ' || c == '\t' || c == '(' || c == ')' || c == ','||c==':')
 					return true;
 				return false;
 			}
@@ -34,7 +34,7 @@ class LexicalAnalyser
 						char temp = line.charAt(i);
 						if (temp == '#')
 							foundcomment = true;
-						else if (temp == ':')
+						else if (temp == ':'&&!assemblydirective)
 							{
 								islabel = true;
 								if (Tokens.size() != 0)

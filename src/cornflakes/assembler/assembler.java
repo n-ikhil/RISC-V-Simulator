@@ -45,31 +45,30 @@ public class assembler {
     instruction[] instructions_temp;
     int data_address = 100000;
     Map< String, Integer> data_map = new HashMap< String, Integer>();
-    
 
-    <instructions> void assemble(String file_location,primary_memory memory) throws IOException {
+    <instructions> void assemble(String file_location, primary_memory memory) throws IOException {
         File file = new File(file_location);
         BufferedReader br = new BufferedReader(new FileReader(file));
         String line;
         if (".data".equals(line = br.readLine())) {
 
-            line=br.readLine();
+            line = br.readLine();
             while (!".text".equals(line)) {
-                parse_directives(line,memory);
-                line=br.readLine();
+                parse_directives(line, memory);
+                line = br.readLine();
             }
-            line=br.readLine();
+            line = br.readLine();
         }
         //line =br.readLine();
-        while (line!=null) {
-            LexicalAnalyser temp = new LexicalAnalyser(line,false);
+        while (line != null) {
+            LexicalAnalyser temp = new LexicalAnalyser(line, false);
             if (temp.islabel == true) {
                 label temp1 = new label(line_no, temp.label);
                 labels.add(temp1);
                 instruction.add_label(temp.label);
                 if (temp.Tokens.size() == 0) {
                     line = br.readLine();
-                    LexicalAnalyser temp2 = new LexicalAnalyser(line,false);
+                    LexicalAnalyser temp2 = new LexicalAnalyser(line, false);
                     parse_instruction(temp2);
                     // continue;
                 }
@@ -78,15 +77,15 @@ public class assembler {
                 parse_instruction(temp);
             }
             line_no++;
-            line=br.readLine();
+            line = br.readLine();
         }
         instructions_temp = instructions.toArray(new instruction[instructions.size()]);
         instruction.assign_labels(instructions_temp);
         // instructions.removeAll(instruction);
     }
 
-    void parse_directives(String line,primary_memory memory) {
-        LexicalAnalyser tokenlist = new LexicalAnalyser(line,true);
+    void parse_directives(String line, primary_memory memory) {
+        LexicalAnalyser tokenlist = new LexicalAnalyser(line, true);
         String label = tokenlist.Tokens.get(0);
         if (".word".equals(tokenlist.Tokens.get(1))) {
             data_map.put(label, new Integer(data_address));
@@ -142,7 +141,7 @@ public class assembler {
                 int r2 = registers.indexOf(temp);
                 if (tokenlist.Tokens.size() == 3) {
                     r2 = data_map.get(temp);
-                    instruction temp2 = new instruction(instr, r1,0,r2);
+                    instruction temp2 = new instruction(instr, r1, 0, r2);
                     instructions.add(temp2);
                 }
                 if (r2 == -1) {
@@ -233,6 +232,15 @@ public class assembler {
                 return "r";
             case "sraw":
                 return "r";
+            case "mul":
+
+                return "r";
+            case "div":
+                //rformat("0110011", "100", "0000001", r1, r2, r3);
+                return "r";
+            case "rem":
+                //rformat("0110011", "110", "0000001", r1, r2, r3);
+                return "r";
             case "lb":
                 return "i";
             case "lh":
@@ -309,9 +317,8 @@ public class assembler {
         return null;
     }
 
-    public static void main(String file_location[]) throws IOException
-			{
-                          /*  assembler obj =new assembler();
+    public static void main(String file_location[]) throws IOException {
+        /*  assembler obj =new assembler();
 				try
 					{
 						obj.assemble("C:\\Users\\ramak\\Desktop\\Risc v\\RISC-V-Simulator\\src\\cornflakes\\assembler\\test.s");
@@ -340,5 +347,5 @@ public class assembler {
                                 int a=obj.memory.loadword(100000);
                                 p.close();
                                 System.out.println(a);*/
-			}
+    }
 }

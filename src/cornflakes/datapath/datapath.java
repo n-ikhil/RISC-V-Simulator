@@ -1,10 +1,12 @@
-
 package datapath;
+import assembler.primary_memory;
+
+
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner; 
-import assembler.primary_memory;
+
 public class datapath {
 
 	static boolean check(String inp,execution[] ex)

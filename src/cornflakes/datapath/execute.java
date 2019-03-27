@@ -1,6 +1,6 @@
 package datapath;
 
-
+import assembler.primary_memory;
 
 public class execute {
 

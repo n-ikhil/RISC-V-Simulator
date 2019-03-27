@@ -10,6 +10,35 @@ public class execution
     String opcode,fun3,fun7,instruct;
     int mem_switch;// no action :0,write to register:1 , write to memory : 2,load from memory :3,write to pc with offset:4,write to pc as reg value:5
 
+    int parseint(String binaryInt,int t) {
+        //Check if the number is negative.
+        //We know it's negative if it starts with a 1
+        if (binaryInt.charAt(0) == '1') {
+            //Call our invert digits method
+            String invertedInt = invertDigits(binaryInt);
+            //Change this to decimal format.
+            int decimalValue = Integer.parseInt(invertedInt, 2);
+            //Add 1 to the curernt decimal and multiply it by -1
+            //because we know it's a negative number
+            decimalValue = (decimalValue + 1) * -1;
+            //return the final result
+            //System.out.println(";-)"+binaryInt+":"+ decimalValue);
+            return decimalValue;
+        } else {
+            //Else we know it's a positive number, so just convert
+            //the number to decimal base.
+            return Integer.parseInt(binaryInt, 2);
+        }
+    }
+    
+    String invertDigits(String binaryInt) {
+        String result = binaryInt;
+        result = result.replace("0", " "); //temp replace 0s
+        result = result.replace("1", "0"); //replace 1s with 0s
+        result = result.replace(" ", "1"); //put the 1s back in
+        return result;
+    }
+
 
     execution(primary_memory mem,boolean pipe)
         {
@@ -25,6 +54,9 @@ public class execution
 
             mem_switch=1;
             //////////////////////////////////
+            // System.out.println(parseint("1", 2));
+            // System.out.println(parseint("01", 2));
+
 
 
             /////////////////////////
@@ -35,19 +67,28 @@ public class execution
             fun7 = array.substring(0, 7);
 
                 rds =  array.substring(20, 25);
-            rd = Integer.parseInt(rds, 2);
-            if(rd<0) rd=0;
+                rds="0"+rds;
+            rd = parseint(rds, 2);
+            if(rd<0 || rd>31) rd=0;
+
                 rs2s = array.substring(7,12);
-           
-            rs2 = Integer.parseInt(rs2s, 2);
-            if(rs2<0) rs2=0;
-                rs1s = array.substring(12, 17);
+                rs2s = "0" + rs2s;
+            rs2 = parseint(rs2s, 2);
+            if(rs2<0||rs2>31) rs2=0;
             
-            rs1 = Integer.parseInt(rs1s, 2);
-            if(rs1<0) rs1=0;
+                rs1s = array.substring(12, 17);
+                rs1s="0"+rs1s;            
+            rs1 = parseint(rs1s, 2);
+            if(rs1<0||rs1>31) rs1=0;
 
                 imms = array.substring(0, 12);
-            iv = Integer.parseInt(rds, 2);
+            iv = parseint(imms, 2);
+
+            //////////////////////////
+            //System.out.println(iv+"::"+imms);
+            //////////////////////////
+
+            ///////////////////////negative
             
             
            
@@ -69,7 +110,7 @@ public class execution
                             id = 2;return;                    
 
                         case "010": // lw
-                            id = 3;return;
+                            id = 3;return;////////////////////////////////////
 
                         case "011": // ld
                             id = 4;return;
@@ -145,7 +186,7 @@ public class execution
                         id = 19;type=5;
                         mem_switch=1;
                         imms = array.substring(0, 21);
-                        iv = Integer.parseInt(imms, 2);
+                        iv = parseint(imms, 2);
                     }
 
                 case "0011011":type=2;mem_switch=1;
@@ -175,7 +216,7 @@ public class execution
                                 imms1 = array.substring(0,  7);
                                 imms2 = array.substring(20,25);
                                 imms = imms1+imms2;
-                                iv = Integer.parseInt(imms, 2);
+                                iv = parseint(imms, 2);
                                 mem_switch=2;
 
 
@@ -204,6 +245,8 @@ public class execution
                             case "000":
                                 switch (fun7)
                                     {
+                                        case "0000001":
+                                            id = 60; return;//mul
                                         case "0000000": // add                                        
                                             id = 28;return;                         
 
@@ -225,6 +268,9 @@ public class execution
                                 id = 32;return;                            
 
                             case "100": // xor
+                                if(fun7=="0000001")
+                                {id=61;//div
+                                return;}
                                 id = 33;return;                            
 
                             case "101":
@@ -245,6 +291,9 @@ public class execution
                                 
 
                             case "110": // or
+                                if(fun7=="0000001")
+                                {id=62;
+                                return;}
                                 id = 36;return;
                                 
 
@@ -258,7 +307,7 @@ public class execution
                         type=5;id = 38;
                         mem_switch=1;
                         imms=array.substring(0, 20);
-                        iv = Integer.parseInt(imms, 2);
+                        iv = parseint(imms, 2);
                         
                         return;
                                 
@@ -305,7 +354,7 @@ public class execution
                 imms3=array.substring(20, 24);
                 imms4=array.substring(24,25);
                 imms=imms1+imms4+imms2+imms3;
-                iv = Integer.parseInt(imms, 2);
+                iv = parseint(imms, 2);
                 mem_switch=4;
                 
 
@@ -328,11 +377,11 @@ public class execution
                         }
 
                 case "1100111": // jalr
-                    id = 51;type=2;mem_switch=4;return;
+                    id = 50;type=2;mem_switch=5;return;
 
                 case "1101111": // jal
-                    id = 50;
-                    mem_switch=5;
+                    id = 51;
+                    mem_switch=4;
                     type=6;
                     imms1=array.substring(0, 1);
                     imms2=array.substring(1,11);
@@ -340,7 +389,7 @@ public class execution
                     imms4=array.substring(12,20);
 
                     imms=imms1+imms4+imms3+imms2;
-                    iv = Integer.parseInt(imms, 2);
+                    iv = parseint(imms, 2);return;
 
                 case "1110011":
                 type=2;
@@ -379,142 +428,237 @@ public class execution
 
     }
 
-    void run(primary_memory mem)
-    {
-        //System.out.println(id+"-"+stage);
-        
-                switch(stage)
-                {
-                    
-                    case 2:
-                    {
-                        ///
-                        if(rs1>=0&&rs1<32)mem.ra=mem.register[rs1];
-                        if(rs2>=0&&rs2<32)mem.rb=mem.register[rs2];
-                        mem.iv=iv;
-                        stage++;
-                        if(pipelined) return;
-                    }
-                    
-                    case 3:
-                    {
-                        ///
-                        switch(type)
-                        {
-                        case 1 :
-                        	execute.executer(id,mem.ra,mem.rb); // R-type
-                        	mem.rx = execute.output;
-                        	break;
-                        	
-                        case 2 :
-                        	execute.executei(id,mem.ra,mem.iv); // I-type
-                        	int k = execute.output;
-                        	if(id == 50) // jalr
-                        	{
-                        		mem.rx = mem.pc;
-                        		mem.pc = k*2 - 4;
-                        	}
-                        	
-                        	break;
-                        	
-                        case 3 :
-                        	execute.executeS(id,mem.ra,mem.iv); // S-type
-                        	mem.rx = execute.output;
-                        	break;
-                        	
-                        case 4 :
-                        	execute.executeu(id,mem.ra,mem.iv); // U-type
-                        	mem.rx = execute.output;
-                        	break;
-                        	
-                        case 5 :
-                        	execute.executeuj(id,mem.ra,mem.iv); // UJ-type
-                        	mem.rx = mem.pc;
-                        	mem.pc = mem.pc + mem.iv*2 - 4;
-                        	break;
-                        	
-                        case 6 :
-                        	execute.executesb(id,mem.ra,mem.rb,mem.iv); // SB-type
-                        	mem.rx = execute.output;
-                        	if(mem.rx == 1)
-                        	{
-                        		mem.pc = mem.iv*2 + mem.pc - 4;
-                        	}
-                        	break;
-                        	
-                        }
-                        
-                        stage++;
-                        if(pipelined) return;
-                    }
-                    case 4:
-                    {
-                        ///
-                        //mem.ry=mem.rx;///if no memory access
-                        stage++;
-                        //System.out.println(instruct + ":stage 4");
-                        if(pipelined) return;
+    // no action :0,write to register:1 , write to memory : 2,load from memory
+                   // :3,write to pc with offset:4,write to pc as reg value:5
 
-                        switch(mem_switch)
-                        {
-                            case 1: // write to reg without memeory access;
-                                    {
-                                        mem.ry=mem.rx;
-                                        
-                                        break;
-                                    }
-                            case 2: // write to memory
-                                    {
-                                    	switch(id)
-                                    	{
-                                    	
-                                    	case 1:mem.storeword(mem.rx, mem.rb);//change for half and byte;
-                                    	
-                                    	case 2:mem.storehalf(mem.rx, mem.rb);
-                                    		
-                                    	case 3:mem.storeword(mem.rx, mem.rb);
-                                    	
-                                    	}
-                                    	
-                                        
-                                        break;
-                                    }
-                            case 3://read from memory
-                                    {
-                                    	switch(id)
-                                    	{
-                                    	
-                                    	case 24:
-                                                mem.ry  = mem.loadbyte(mem.rx);
-                                    		
-                                    	case 25:
-                                    		mem.ry = mem.loadhalf(mem.rx);
-                                    		
-                                    	case 26:
-                                    		 mem.ry=mem.loadword(mem.rx);
-                                    		
-                                    	}
-                                       
-                                        break;
-                                    }
-                        }
-                    }
-                    case 5:
-                    {
-                        ///
+    void run(primary_memory mem) {
+        // System.out.println(id+"-"+stage);
+
+        switch (stage) {
+
+        case 2: {
+            ///
+            if (rs1 >= 0 && rs1 < 32)
+                mem.ra = mem.register[rs1];
+            if (rs2 >= 0 && rs2 < 32)
+                mem.rb = mem.register[rs2];
+            mem.iv = iv;
+            stage++;
+            if (pipelined)
+                return;
+            //System.out.println(rd+":"+mem.iv);
+        }
+
+        case 3: {
+            //System.out.println(type + "<<");
+            ///
+            switch (type) {////////////////
+                
+            case 1:
+                execute.executer(id, mem.ra, mem.rb); // R-type
+                mem.rx = execute.output;
+                break;
+
+            case 2:
+                execute.executei(id, mem.ra, mem.iv); // I-type
+                int k = execute.output;
+                if (id == 50) // jalr
+                {
+                    mem.rx = mem.pc;
+                    ///////////////////////
+                    //System.out.println("mem.rx " + mem.rx);
+                    ///////////////////////
+                    mem.pc = k;
+                    //System.out.println("mem.rx " + mem.pc);
+                }
+                else
+                {
+                    mem.rx=k;
+                    /////////////////////////////////////////////////
+                    //System.out.println("mem.rx " + mem.rx);
+                }
+
+                break;
+
+            case 3:
+                execute.executeS(id, mem.ra, mem.iv); // S-type
+                mem.rx = execute.output;
+                break;
+
+            case 5:
+                execute.executeu(id, mem.ra, mem.iv); // U-type
+                mem.rx = execute.output;
+                break;
+
+            case 6:
+                execute.executeuj(id, mem.ra, mem.iv); // UJ-type
+                mem.rx = mem.pc;
+                //System.out.println("mem.rx " + mem.rx);
+                mem.pc = mem.pc + mem.iv * 2 - 4;
+                break;
+
+            case 4:
+                execute.executesb(id, mem.ra, mem.rb, mem.iv); // SB-type
+                mem.rx = execute.output;
+                //System.out.println("mem.rx " + mem.rx);
+                if (mem.rx == 1) {
+                    mem.pc = mem.iv * 2 + mem.pc - 4;
+                }
+                break;
+
+            }
+
+            stage++;
+            if (pipelined)
+                return;
+        }
+        case 4: {
+            ///
+            // mem.ry=mem.rx;///if no memory access
+            stage++;
+            // System.out.println(instruct + ":stage 4");
+            if (pipelined)
+                return;
+
+            switch (mem_switch) {
+            case 1: // write to reg without memeory access;
+            {
+                mem.ry = mem.rx;
+
+                break;
+            }
+            case 2: // write to memory
+            {
+                switch (id) {
+
+                case 24:
+                    mem.storeword(mem.rx, mem.rb);break;// change for half and byte;
+
+                case 25:
+                    mem.storehalf(mem.rx, mem.rb);break;
+
+                case 26:
+                    mem.storeword(mem.rx, mem.rb);break;
+
+                }
+
+                break;
+            }
+            case 3:// read from memory
+            {
+                switch (id) {
+
+                case 1:
+                    mem.ry = mem.loadbyte(mem.rx);break;
+
+                case 2:
+                    mem.ry = mem.loadhalf(mem.rx);break;
+
+                case 3:
+                    mem.ry = mem.loadword(mem.rx);break;
+
+                }
+
+                break;
+            }
+            case 4:
+            {
+                mem.ry=mem.rx;break;
+            }
+            case 5: {
+                mem.ry = mem.rx;break;
+            }
+
+            }
+        }
+        case 5: {
+            ///
+            if(mem_switch==1||mem_switch==3||mem_switch==5)
+            mem.register[rd] = mem.ry;
+            if(mem_switch==4 && id==51)
+            mem.register[rd] = mem.ry;
+            stage++;
+            retired = true;
+            mem.register[0] = 0;
+             System.out.println(opcode+":"+mem_switch+":rd:"+rd+": "+mem.ry);
+            return;
+        }
+
+        }
+    }
+}
+
+    //void run(primary_memory mem)
+    // {
+    //     //System.out.println(id+"-"+stage);
+        
+    //             switch(stage)
+    //             {
+                    
+    //                 case 2:
+    //                 {
+    //                     ///
+    //                     if(rs1>=0&&rs1<32)mem.ra=mem.register[rs1];
                         
-                        mem.register[rd]=mem.ry;
-                        stage++;
-                        retired=true;
-                        mem.register[0] = 0;
-                        //System.out.println(instruct + ":stage 5");
-                        return;
-                    }
+    //                     if(rs2>=0&&rs2<32)mem.rb=mem.register[rs2];
+    //                     System.out.println(rs1+":"+mem.ra+"\n"+rs2+":"+mem.rb);
+    //                     mem.iv=iv;
+    //                     stage++;
+    //                     if(pipelined) return;
+    //                 }
+                    
+    //                 case 3:
+    //                 {
+    //                     ///
+                        
+    //                     mem.rx=execute.executefunc(id,mem.ra,mem.rb,mem.iv);
+    //                     stage++;
+    //                     //System.out.println(id);
+    //                     if(pipelined) return;
+    //                 }
+    //                 case 4:
+    //                 {
+    //                     ///
+    //                     //mem.ry=mem.rx;///if no memory access
+    //                     stage++;
+    //                     //System.out.println(instruct + ":stage 4");
+    //                     if(pipelined) return;
+
+    //                     switch(mem_switch)
+    //                     {
+    //                         case 1: // write to reg without memeory access;
+    //                                 {
+    //                                     mem.ry=mem.rx;
+    //                                     break;
+    //                                 }
+    //                         case 2: // write to memory
+    //                                 {
+    //                                     mem.storeword(mem.rx, mem.rb);//change for half and byte;
+    //                                     break;
+    //                                 }
+    //                         case 3://read from memory
+    //                                 {
+    //                                     mem.ry=mem.loadword(mem.rx);
+    //                                     break;
+    //                                 }
+    //                     }
+    //                 }
+    //                 case 5:
+    //                 {
+    //                     ///
+                        
+    //                     mem.register[rd]=mem.ry;
+    //                     stage++;
+    //                     retired=true;
+    //                     mem.register[0] = 0;
+    //                     //System.out.println(instruct + ":stage 5");
+    //                     return;
+    //                 }
                     
             
           
 
             
-        }
-    }
-}
+    //     }
+    // }
+//}
