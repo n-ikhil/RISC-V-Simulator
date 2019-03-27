@@ -143,7 +143,7 @@ public class assembler {
                 int r2 = registers.indexOf(temp);
                 if (tokenlist.Tokens.size() == 3) {
                     r2 = data_map.get(temp);
-                    instruction temp2 = new instruction(instr, r1, 0, r2);
+                    instruction temp2 = new instruction(instr, r1, r2,0);
                     instructions.add(temp2);
                     return;
                 }
