@@ -21,13 +21,16 @@ class LexicalAnalyser
 		public String label;
 		boolean islabel = false;
 		StringBuilder word = new StringBuilder();
+           
 
 		// ArrayList<Integer> tokens = new ArrayList<>(Integer);
 		LexicalAnalyser(String line,boolean assemblydirective)
 			{
+                                
 				boolean foundcomment = false;
 				boolean isDelimitter = false;
-
+                                //boolean instring=false;
+                                boolean is=false;
 				StringBuilder str = new StringBuilder();
 				for (int i = 0; i < line.length(); i++)
 					{
@@ -47,20 +50,26 @@ class LexicalAnalyser
 								isDelimitter = true;
 
 							}
+                                                        else
+                                                        {
+                                                            is=true;
+                                                        }
 						if (foundcomment)
 							return;
-						if (isDelimitter)
+						if (isDelimitter&&is)
 							{
 								isDelimitter = false;
+                                                                is=false;
 								Tokens.add(str.toString());
 								str.delete(0, str.length());
+                                                                
 							} else if (islabel&&!assemblydirective)
 							{
 								label = str.toString();
 								str.delete(0, str.length());
 								islabel = true;
 								//return;
-							} else
+							} else if(is)
 							{
 								str.append(temp);
 							}
