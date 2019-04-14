@@ -398,8 +398,8 @@ Object[][] reg=new Object [][] {
         int mem_index=0;
                 try
                 {
-                    
-                    BufferedReader br = new BufferedReader(new FileReader(file));                
+
+                    BufferedReader br = new BufferedReader(new FileReader(file));
                     String line;
                     //System.out.println("No input");
                     while ((line = br.readLine()) != null)
@@ -415,7 +415,7 @@ Object[][] reg=new Object [][] {
                             memory.storewordstr(mem_index,temp+bin_line);
                             //System.out.println(mem.loadword(mem_index)+"p");
                             mem_index=mem_index+4;
-                            
+
                         }
                 }
                 catch(Exception e){System.out.println("No input");}
@@ -435,7 +435,7 @@ Object[][] reg=new Object [][] {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
