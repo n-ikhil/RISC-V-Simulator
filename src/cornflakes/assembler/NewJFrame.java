@@ -395,6 +395,13 @@ Object[][] reg=new Object [][] {
         // TODO add your handling code here:
         BuildActionPerformed(evt);
         File file = new File(outputfile);
+        for(int i=0;i<32;i++)
+        {
+            if(i!=2||i!=3)
+            {
+            memory.register[i]=0;
+        }
+        }
         int mem_index=0;
                 try
                 {
