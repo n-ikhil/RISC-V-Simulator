@@ -426,10 +426,12 @@ Object[][] reg=new Object [][] {
                         }
                 }
                 catch(Exception e){System.out.println("No input");}
-
-        datapath.run(memory,false);
+        datapath dat=new datapath();
+        dat.run(memory);
         for(int i=0;i<32;i++)
         {
+            if(i==0)
+                reg[i][1]=0;
             reg[i][1]=memory.register[i];
         }
         jTable1.setModel(new DefaultTableModel(reg, column));

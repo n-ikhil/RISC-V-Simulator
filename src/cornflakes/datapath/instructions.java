@@ -3,8 +3,8 @@ package datapath;
 import assembler.primary_memory;
 public class instructions
 {
-    boolean retired;
-    boolean pipelined;
+
+    int hazard_type_rs1,hazard_type_rs2;
     //boolean write_to_register,write_to_pc,write_to_memory;
     int stage;
     int rs1,rs2,iv,rd,id,type;
@@ -42,20 +42,19 @@ public class instructions
 
     instructions()
     {
-      retired=false;
+      ;
     }
     instructions(primary_memory mem)
         {
-            boolean pipe=true;
 
-            pipelined=pipe;
-            stage=2;
-            retired=false;
+
             /////////////////////////
             String array=mem.ir;
             //String array=mem.ir; //stage 1
             ////////////////////////
             instruct=array;
+            // long decimal1 = Long.parseLong(array,2);
+            //  instruct = Integer.toString("0"+decimal1,16);
             rs1=rs2=iv=rd=id=type=0;
 
             mem_switch=1;
@@ -75,20 +74,21 @@ public class instructions
                 rds =  array.substring(20, 25);
                 rds="0"+rds;
             rd = parseint(rds, 2);
-            if(rd<0 || rd>31) rd=0;
+            //if(rd<0 || rd>31) rd=0;
 
                 rs2s = array.substring(7,12);
                 rs2s = "0" + rs2s;
             rs2 = parseint(rs2s, 2);
-            if(rs2<0||rs2>31) rs2=0;
+           //if(rs2<0||rs2>31) rs2=0;
 
                 rs1s = array.substring(12, 17);
                 rs1s="0"+rs1s;
             rs1 = parseint(rs1s, 2);
-            if(rs1<0||rs1>31) rs1=0;
+            //if(rs1<0||rs1>31) rs1=0;
 
                 imms = array.substring(0, 12);
             iv = parseint(imms, 2);
+            instruct=opcode+" "+rds;
 
             //////////////////////////
             //System.out.println(iv+"::"+imms);
@@ -130,7 +130,7 @@ public class instructions
                         case "110": // lwu
                             id = 7;return;
 
-                        default: retired=true;return;
+                        default: ;return;
 
                     }
 
@@ -146,7 +146,7 @@ public class instructions
                             case "001": // fence.i
                                 id = 9;return;
 
-                            default: retired=true;return;
+                            default: ;return;
                         }
 
 
@@ -175,7 +175,7 @@ public class instructions
                                 case "0100000": // srai
                                     id = 16;return;
 
-                                default: retired=true;return;
+                                default: ;return;
 
                             }
 
@@ -184,7 +184,7 @@ public class instructions
                         case "111": // andi
                             id = 18;return;
 
-                        default : retired=true;return;
+                        default : ;return;
                     }
 
                 case "0010111":type=5; // auipc
@@ -211,10 +211,10 @@ public class instructions
                                     case "0100000": // sraiw
                                         id = 23;return;
 
-                                    default: retired=true;return;
+                                    default: ;return;
 
                                 }
-                            default: retired=true;return;
+                            default: ;return;
                         }
 
                 case "0100011":
@@ -259,7 +259,7 @@ public class instructions
                                         case "0100000": // sub
                                             id = 29;return;
 
-                                        default: retired=true;return;
+                                        default: ;return;
 
                                     }
 
@@ -289,7 +289,7 @@ public class instructions
                                         case "0100000":// sra
                                             id = 35;return;
 
-                                        default: retired=true;return;
+                                        default: ;return;
 
 
 
@@ -306,7 +306,7 @@ public class instructions
                             case "111": // and
                                 id = 37;return;
 
-                            default: retired=true;return;
+                            default: return;
                         }
 
                 case "0110111": // lui
@@ -425,7 +425,7 @@ public class instructions
                                 id = 59;return;
                         }
                 default:
-                    retired=true;return;
+                    return;
 
 
             }
