@@ -5,7 +5,7 @@ import java.util.*;
 public class primary_memory {
 
     //
-    Map<Integer, String> mem = new HashMap<>();
+    Map<Integer, String> mem ;
     //private  String[] memory;
     final int stack_start = 268435;//2^28-3-1
     final int heap_start = 168435;//2^28
@@ -15,6 +15,10 @@ public class primary_memory {
     public int ra, rb, rm, rx, ry, rz, pc, iv;
     public int rat, rbt, rmt, rxt, ryt, rzt, pct, ivt;
     String n = "00000000000000000000000000000000";
+    int cache_size = 2;
+    int block_size = 2;
+    int cache_type=0;
+    Cache cache;
 
     public int parseint(String binaryInt, int t) {
         //Check if the number is negative.
@@ -44,19 +48,13 @@ public class primary_memory {
         return result;
     }
 
-    public class cache {
-
-        public class DirectMapping {
-            
-        }
-    }
-
     //the above values are chosen arbitrarily
     public primary_memory() {
         /*memory=new String[268435]; //max-memory=2^28;
         for(int i=0;i< 268435;i++) memory[i]="00000000";*/
         register = new int[32];
-
+        mem = new HashMap<>();
+        cache=new Cache();
         for (int i = 0; i < 32; i++) {
             register[i] = 0;
         }
@@ -68,10 +66,36 @@ public class primary_memory {
         //memory[heap_start]="00000001";
         ///////////////////////////////
     }
-     public void set_primary_memory() {
+
+    public class Cache {
+
+        public class block_dm {
+
+            int tag;
+            boolean valid;
+            String[] bytes = new String[block_size * 4];
+        }
+        
+         public class associate_dm {
+
+            int tag;
+            boolean valid;
+            String[] bytes = new String[block_size * 4];
+        }
+        public class set_associate_dm {
+
+            int tag;
+            boolean valid;
+            String[] bytes = new String[block_size * 4];
+        }
+        block_dm[] cache_dm=new block_dm[cache_size];
+        
+    }
+
+    public void set_primary_memory() {
         /*memory=new String[268435]; //max-memory=2^28;
         for(int i=0;i< 268435;i++) memory[i]="00000000";*/
-        register = new int[32];
+        //register = new int[32];
 
         for (int i = 0; i < 32; i++) {
             register[i] = 0;
