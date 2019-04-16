@@ -264,7 +264,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="Build">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Build"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor" preCode="&#xa;">
+          <Connection code="&quot;Build&quot;" type="code"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BuildActionPerformed"/>

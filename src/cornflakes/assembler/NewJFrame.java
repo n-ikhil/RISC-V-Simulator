@@ -5,12 +5,9 @@
  */
 package assembler;
 
-import assembler.*;
 import datapath.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,7 +17,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -395,13 +391,7 @@ Object[][] reg=new Object [][] {
         // TODO add your handling code here:
         BuildActionPerformed(evt);
         File file = new File(outputfile);
-        for(int i=0;i<32;i++)
-        {
-            if(i!=2||i!=3)
-            {
-            memory.register[i]=0;
-        }
-        }
+        memory.set_primary_memory();
         int mem_index=0;
                 try
                 {
