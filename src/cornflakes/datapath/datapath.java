@@ -4,7 +4,10 @@ import assembler.primary_memory;
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import java.util.Scanner;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 
 public class datapath
@@ -12,21 +15,18 @@ public class datapath
 
 	//knobs and stats
 	Map <Integer,branchobject> branchbuffer= new HashMap<>();
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> 504a610fcbdb38b20b2daa70d92619f97ceb7d92
 	public int no_of_stalls_data_hazards,no_of_stalls_ctrl_hazards,no_of_cycles,no_of_instructions,
 	no_of_data_hazards,no_of_ctrl_hazards,no_of_branch_mispredictions,no_of_ctrl_instructions
 	,no_of_alu_instructions,no_of_data_transfer_instructions,no_of_stalls;
 
 	double cpi;
+	int temp_pc;
+
 
 	public boolean stall_decode,pipelined,data_forwarding,disable_writing_to_registers,disable_writing_to_pipelined_regs,watch_pipline_reg;
 
 	int stalls;// this is nothing related with number of stalls
-	
 
 	public datapath()
 	{
@@ -48,6 +48,7 @@ public class datapath
 		disable_writing_to_pipelined_regs=false;
 		watch_pipline_reg=false;
 		stall_decode=false;
+		stalls=0;
 	}
 
 	 boolean check(String inp)
@@ -63,7 +64,7 @@ public class datapath
 
 		System.out.println("fetch stage");
 		int empty_instr=0;
-		
+
 		//condition for piplined
 		for(instructions i: instr_que)
 		{
@@ -71,14 +72,28 @@ public class datapath
 		}
 		//  RISCV HARDWARE LEVEL FETCH START
 		mem.irt = mem.loadwordstr(mem.pc);
+		temp_pc = mem.pc;
 		mem.pc = mem.pc + 4;
 		//	RISCV HARDWARE LEVEL FETCH END
-			
-		
+
+
 		if(check(mem.irt) )//checks if the instrucition is null
 		{
-			if(empty_instr==4 && !pipelined) {instr_que[0]=null;mem.pc=mem.pc-4;return true;}
-			instr_que[0]=new instructions();return false;
+			if(empty_instr==4 && !pipelined)
+			{
+				instr_que[0]=null;mem.pc=mem.pc-4;return true;
+			}
+			instr_que[0]=new instructions();
+			if(branchbuffer.containsKey(mem.pc-4))
+			{
+				branchobject a = branchbuffer.get(mem.pc-4);
+				if(a.prediction == 1)
+				{
+					mem.pc = a.targetaddress;
+				}
+
+ 			}
+			return false;
 		}
 		else instr_que[0]=null;
 		return false;
@@ -132,14 +147,13 @@ public class datapath
 	}
 
 
-	@SuppressWarnings("null")
 	public  void decode(primary_memory mem , instructions[] instr_que)
 	{
 
 		if(instr_que[1]==null ) return;
-		if(stall_decode) {stall_decode=false;return;}
+		//if(stall_decode) {stall_decode=false;return;}
 		System.out.println("at decode");
-		
+
 		instructions obj=new instructions(mem);
 		instr_que[1]=obj;
 		if(obj.type==4)
@@ -147,11 +161,12 @@ public class datapath
 			branchobject bo = null;
 			if(branchbuffer.get(mem.pc)==null)
 			{
-				bo.branchaddress=mem.pc;
+				bo.branchaddress=temp_pc;
 				bo.targetaddress=mem.iv;
-				bo.prediction=false;
+				bo.prediction=0;
+				bo.two_bit=0;
 				bo.is_there=false;
-				branchbuffer.put(mem.pc,bo);
+				branchbuffer.put(temp_pc,bo);
 			}
 		}
 		detect_hazard(instr_que);
@@ -172,6 +187,26 @@ public class datapath
 		mem.ivt = obj.iv;// here also
 
 		// RISCV HARDWARE LEVEL DECODE STAR
+
+		if(obj.type == 4)
+		{
+			int ra = obj.rs1,rb = obj.rs2;
+			alu.executesb(obj.id, ra, rb, mem.iv); // SB-type
+			mem.rxt = alu.output;
+			if (mem.rxt != branchbuffer.get(temp_pc).prediction)
+			{
+				if(mem.rxt == 1)
+				{
+					mem.pc = mem.iv * 2 + mem.pc - 4;
+					branchbuffer.get(temp_pc).updateprediction(1);
+				}
+				else
+				{
+					mem.pc = temp_pc+ 4;
+					branchbuffer.get(temp_pc).updateprediction(0);
+				}
+			}
+		}
 
 	}
 
@@ -270,7 +305,7 @@ public class datapath
 	{
 		System.out.println("at memory");
 
-
+		boolean change_ir=true;
 		instructions obj = instr_que[3];
 		if(instr_que[4]!=null)
 			no_of_instructions++;
@@ -281,15 +316,18 @@ public class datapath
 			{
 				instr_que[2]=instr_que[1];
 				instr_que[1]=instr_que[0];
+
 			}
 			else
 			{
 				stalls--;
+				change_ir=false;//refer toggle function
 				stall_decode=true;
 				instr_que[2]=null;
-				instr_que[0]=null;
+
 				mem.pc=mem.pc-4;
 			}
+			instr_que[0]=null;
 		}
 
 
@@ -300,12 +338,12 @@ public class datapath
 		}
 		if(obj==null && empty_instr==5)
 		{
-			toggle(mem);
+			toggle(mem,change_ir);
 		  return true;
 		}
 		if(obj==null)
 		{
-			toggle(mem);
+			toggle(mem,change_ir);
  		 	return false;
 		}
 		switch (obj.mem_switch)
@@ -371,11 +409,11 @@ public class datapath
 		}
 
 		// HARDWARE LEVEL MEMORY END
-		toggle(mem);
+		toggle(mem,change_ir);
 
 		return false;
 	}
-	public  void toggle(primary_memory mem)
+	public  void toggle(primary_memory mem,boolean change_ir)
 	{
 		if(!disable_writing_to_pipelined_regs)
 		{
@@ -385,11 +423,7 @@ public class datapath
 			mem.rx=mem.rxt;
 			mem.ry=mem.ryt;
 			mem.rm=mem.rmt;
-<<<<<<< HEAD
 
-=======
-			mem.ir=mem.irt;
->>>>>>> 504a610fcbdb38b20b2daa70d92619f97ceb7d92
 		}
 		if(change_ir)
 		mem.ir=mem.irt;
@@ -435,11 +469,7 @@ public class datapath
 		boolean flag;
 		instructions[] instr_que=new instructions[5];
 		for(instructions i:instr_que)i=null;
-<<<<<<< HEAD
 		pipelined=pip;
-=======
-		pipelined=true;
->>>>>>> 504a610fcbdb38b20b2daa70d92619f97ceb7d92
 		while(true)
 		{
 		 flag=fetch (mem,instr_que);
