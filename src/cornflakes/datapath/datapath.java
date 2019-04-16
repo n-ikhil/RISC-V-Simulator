@@ -14,10 +14,13 @@ public class datapath
 {
 
 	//knobs and stats
+	Map <Integer,branchobject> branchbuffer= new HashMap<>();
 
 	public int no_of_stalls_data_hazards,no_of_stalls_ctrl_hazards,no_of_cycles,no_of_instructions,
 	no_of_data_hazards,no_of_ctrl_hazards,no_of_branch_mispredictions,no_of_ctrl_instructions
-	,no_of_alu_instructions,no_of_data_transfer_instructions,cpi,no_of_stalls;
+	,no_of_alu_instructions,no_of_data_transfer_instructions,no_of_stalls;
+
+	double cpi;
 
 	public boolean stall_decode,pipelined,data_forwarding,disable_writing_to_registers,disable_writing_to_pipelined_regs,watch_pipline_reg;
 
@@ -117,10 +120,12 @@ public class datapath
 			else instr_que[1].hazard_type_rs2=0;
 		}
 
-		if(instr_que[1].hazard_type_rs2!=0)
+		if(instr_que[1].hazard_type_rs2!=0 && instr_que[1].hazard_type_rs2!=3)
 			no_of_data_hazards++;
-		if(instr_que[1].hazard_type_rs1!=0)
+		if(instr_que[1].hazard_type_rs1!=0 && instr_que[1].hazard_type_rs1!=3)
 			no_of_data_hazards++;
+
+
 
 		return;
 	}
@@ -135,6 +140,18 @@ public class datapath
 
 		instructions obj=new instructions(mem);
 		instr_que[1]=obj;
+		if(obj.type==4)
+		{
+			branchobject bo = null;
+			if(branchbuffer.get(mem.pc)==null)
+			{
+				bo.branchaddress=mem.pc;
+				bo.targetaddress=mem.iv;
+				bo.prediction=false;
+				bo.is_there=false;
+				branchbuffer.put(mem.pc,bo);
+			}
+		}
 		detect_hazard(instr_que);
 		// handling the nop hazards below
 		if(obj.hazard_type_rs1==3 || obj.hazard_type_rs2==3)
@@ -369,9 +386,10 @@ public class datapath
 			mem.rx=mem.rxt;
 			mem.ry=mem.ryt;
 			mem.rm=mem.rmt;
-			if(change_ir)
-			mem.ir=mem.irt;
+
 		}
+		if(change_ir)
+		mem.ir=mem.irt;
 			// if(stalls==0)
 			//
 			// else stalls--;
@@ -407,14 +425,14 @@ public class datapath
 	}
 
 
-	public  void run(primary_memory mem)
+	public  void run(primary_memory mem,boolean pip)
 	{
 
 		mem.pc=0;
 		boolean flag;
 		instructions[] instr_que=new instructions[5];
 		for(instructions i:instr_que)i=null;
-		pipelined=false;
+		pipelined=pip;
 		while(true)
 		{
 		 flag=fetch (mem,instr_que);
@@ -422,11 +440,17 @@ public class datapath
 		 decode (mem,instr_que);
 		 execute(mem,instr_que);
 		 no_of_cycles++;
+
 		 print_que(instr_que);
 		 if(memory (mem,instr_que) && !flag)break;
 
 		}
+		calculate_data();
 		print_summary();
+	}
+	void calculate_data()
+	{
+		cpi=(double)no_of_cycles/(double)no_of_instructions;
 	}
 	void print_que(instructions[] instr_que)
 	{
@@ -444,7 +468,7 @@ public class datapath
 	{
 		System.out.println("\nno_of_stalls  :"+no_of_stalls+"\nno_of_cycles  :"+no_of_cycles+
 		"\nno_of_branch_mispredictions  :"+no_of_branch_mispredictions+"\nno_of_data_hazards:  "+no_of_data_hazards+
-		"\nno_of_ctrl_hazards:  "+no_of_ctrl_hazards+"\nno_of_instructions"+no_of_instructions+
+		"\nno_of_ctrl_hazards:  "+no_of_ctrl_hazards+"\nno_of_instructions  :"+no_of_instructions+
 		"\nno_of_alu_instructions  :"+no_of_alu_instructions+"\nno_of_ctrl_instructions:  "+no_of_ctrl_instructions+
 		"\nno_of_stalls_ctrl_hazards  :"+no_of_stalls_ctrl_hazards+"\nno_of_stalls_data_hazards  :"+no_of_stalls_data_hazards+
 		"\nno_of_data_transfer_instructions  :"+no_of_data_transfer_instructions+"\ncpi  :"+cpi);
