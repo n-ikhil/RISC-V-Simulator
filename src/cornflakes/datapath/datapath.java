@@ -43,6 +43,7 @@ public class datapath
 		disable_writing_to_pipelined_regs=false;
 		watch_pipline_reg=false;
 		stall_decode=false;
+		stalls=0;
 	}
 
 	 boolean check(String inp)
@@ -129,7 +130,7 @@ public class datapath
 	{
 
 		if(instr_que[1]==null ) return;
-		if(stall_decode) {stall_decode=false;return;}
+		//if(stall_decode) {stall_decode=false;return;}
 		System.out.println("at decode");
 
 		instructions obj=new instructions(mem);
@@ -250,7 +251,7 @@ public class datapath
 	{
 		System.out.println("at memory");
 
-
+		boolean change_ir=true;
 		instructions obj = instr_que[3];
 		if(instr_que[4]!=null)
 			no_of_instructions++;
@@ -261,15 +262,18 @@ public class datapath
 			{
 				instr_que[2]=instr_que[1];
 				instr_que[1]=instr_que[0];
+
 			}
 			else
 			{
 				stalls--;
+				change_ir=false;//refer toggle function
 				stall_decode=true;
 				instr_que[2]=null;
-				instr_que[0]=null;
+
 				mem.pc=mem.pc-4;
 			}
+			instr_que[0]=null;
 		}
 
 
@@ -280,12 +284,12 @@ public class datapath
 		}
 		if(obj==null && empty_instr==5)
 		{
-			toggle(mem);
+			toggle(mem,change_ir);
 		  return true;
 		}
 		if(obj==null)
 		{
-			toggle(mem);
+			toggle(mem,change_ir);
  		 	return false;
 		}
 		switch (obj.mem_switch)
@@ -351,11 +355,11 @@ public class datapath
 		}
 
 		// HARDWARE LEVEL MEMORY END
-		toggle(mem);
+		toggle(mem,change_ir);
 
 		return false;
 	}
-	public  void toggle(primary_memory mem)
+	public  void toggle(primary_memory mem,boolean change_ir)
 	{
 		if(!disable_writing_to_pipelined_regs)
 		{
@@ -365,6 +369,7 @@ public class datapath
 			mem.rx=mem.rxt;
 			mem.ry=mem.ryt;
 			mem.rm=mem.rmt;
+			if(change_ir)
 			mem.ir=mem.irt;
 		}
 			// if(stalls==0)
@@ -409,7 +414,7 @@ public class datapath
 		boolean flag;
 		instructions[] instr_que=new instructions[5];
 		for(instructions i:instr_que)i=null;
-		pipelined=true;
+		pipelined=false;
 		while(true)
 		{
 		 flag=fetch (mem,instr_que);
