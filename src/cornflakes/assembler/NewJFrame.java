@@ -429,7 +429,7 @@ Object[][] reg=new Object [][] {
 
                         }
                 }
-                catch(Exception e){System.out.println("No input");}
+                catch(Exception e){System.out.println(e);}
         datapath dat=new datapath();
         dat.run(memory,pip);
         for(int i=0;i<32;i++)
@@ -445,6 +445,11 @@ Object[][] reg=new Object [][] {
         // TODO add your handling code here:
         pip=!pip;
     }
+
+    private void pipelineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pipelineActionPerformed
+        // TODO add your handling code here:
+        pip=!pip;
+    }//GEN-LAST:event_pipelineActionPerformed
 
     /**
      * @param args the command line arguments
@@ -503,5 +508,5 @@ Object[][] reg=new Object [][] {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JToggleButton pipeline;
-    // End of variables declaration
+    // End of variables declaration//GEN-END:variables
 }
