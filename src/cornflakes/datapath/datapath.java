@@ -21,8 +21,7 @@ public class datapath
 	,no_of_alu_instructions,no_of_data_transfer_instructions,no_of_stalls;
 
 	double cpi;
-	int temp_pc;
-
+	int temp_pc,prev_pc,prev_to_prev,branch_pc;
 
 	public boolean stall_decode,pipelined,data_forwarding,disable_writing_to_registers,disable_writing_to_pipelined_regs,watch_pipline_reg;
 
@@ -75,6 +74,10 @@ public class datapath
 		temp_pc = mem.pc;
 		mem.pc = mem.pc + 4;
 		//	RISCV HARDWARE LEVEL FETCH END
+		System.out.println("current pc at fetch:"+ temp_pc);
+		/*
+					implement number of control hazard, and number of control,alu,data transfer
+		*/
 
 
 		if(check(mem.irt) )//checks if the instrucition is null
@@ -84,12 +87,18 @@ public class datapath
 				instr_que[0]=null;mem.pc=mem.pc-4;return true;
 			}
 			instr_que[0]=new instructions();
-			if(branchbuffer.containsKey(mem.pc-4))
+
+			if(pipelined && branchbuffer.containsKey(temp_pc))
 			{
-				branchobject a = branchbuffer.get(mem.pc-4);
-				if(a.prediction == 1)
+				System.out.println("control hazrd at pc: "+temp_pc);
+				branchobject cur_branch = branchbuffer.get(temp_pc);
+				if(cur_branch.prediction == 1)
 				{
-					mem.pc = a.targetaddress;
+					System.out.println("branch taken at fect"+cur_branch.two_bit+","+cur_branch.prediction);
+					mem.pc = cur_branch.targetaddress;
+				}
+				else{
+					System.out.println("branch not taken at fect");
 				}
 
  			}
@@ -106,6 +115,7 @@ public class datapath
 			rd1=instr_que[2].rd;
 		}
 
+
 		if(instr_que[3]!=null)
 		{
 			rd2=instr_que[3].rd;
@@ -115,6 +125,8 @@ public class datapath
 			rs1=instr_que[1].rs1;
 			rs2=instr_que[1].rs2;
 		}
+		if(rd1==0) rd1=-100;
+		if(rd2==0) rd2=-200;
 		//System.out.println("rs1 : "+rs1+",rs2"+rs2+",rd1 :"+rd1+",rd2"+rd2);
 		{
 			if(rs1==rd1)
@@ -156,17 +168,21 @@ public class datapath
 
 		instructions obj=new instructions(mem);
 		instr_que[1]=obj;
-		if(obj.type==4)
+		if(obj.type==4 && pipelined && !stall_decode)
 		{
-			branchobject bo = null;
-			if(branchbuffer.get(mem.pc)==null)
+			branch_pc=prev_pc;////
+			stall_decode=false;
+			branchobject new_branch = new branchobject();
+			if(branchbuffer.get(prev_pc)==null)
 			{
-				bo.branchaddress=temp_pc;
-				bo.targetaddress=mem.iv;
-				bo.prediction=0;
-				bo.two_bit=0;
-				bo.is_there=false;
-				branchbuffer.put(temp_pc,bo);
+				//int temp1_pc=temp_pc-4;
+				System.out.println("new entry made on branch table with pc: "+prev_pc);
+				new_branch.branchaddress=prev_pc;
+				new_branch.targetaddress=prev_pc+2*instr_que[1].iv;
+				new_branch.prediction=0;
+				new_branch.two_bit=0;
+				new_branch.is_there=false;
+				branchbuffer.put(prev_pc,new_branch);
 			}
 		}
 		detect_hazard(instr_que);
@@ -188,32 +204,48 @@ public class datapath
 
 		// RISCV HARDWARE LEVEL DECODE STAR
 
-		if(obj.type == 4)
+
+		if(obj.type == 4 && pipelined && obj.hazard_type_rs2==0 && obj.hazard_type_rs1==0)//shifted execute to decode for control instructio
 		{
-			int ra = obj.rs1,rb = obj.rs2;
-			alu.executesb(obj.id, ra, rb, mem.iv); // SB-type
-			mem.rxt = alu.output;
-			if (mem.rxt != branchbuffer.get(temp_pc).prediction)
+			System.out.println("enetered decode for controool hazard");
+			//int ra = obj.rs1,rb = obj.rs2;
+			alu.executesb(obj.id, mem.rat, mem.rbt, mem.ivt); // SB-type
+			//mem.rxt = alu.output;/////////////////////////////////////////////////////////////////////////////////////
+			if (alu.output != branchbuffer.get(prev_pc).prediction)
 			{
-				if(mem.rxt == 1)
+				no_of_branch_mispredictions++;
+				System.out.println("wrong prediction for control hazrad");
+
+				if(alu.output == 1)
 				{
-					mem.pc = mem.iv * 2 + mem.pc - 4;
-					branchbuffer.get(temp_pc).updateprediction(1);
+					mem.pc = mem.ivt * 2 + prev_pc;
+					branchbuffer.get(prev_pc).updateprediction(1);
 				}
 				else
 				{
-					mem.pc = temp_pc+ 4;
-					branchbuffer.get(temp_pc).updateprediction(0);
+					mem.pc = prev_pc+4;//firts it was temp_pc
+					branchbuffer.get(prev_pc).updateprediction(0);
 				}
+				System.out.println("new pc: "+mem.pc);
+				instr_que[0]=null;//bypass
 			}
+			instr_que[1].bypass=true;// here im flushing this branch instruction next time it shouldnt decode the next instruction as well
+
 		}
+		else if(obj.type == 4 && pipelined)
+		{
+			prev_to_prev=prev_pc;
+			System.out.println("added to prev to prev pc "+prev_to_prev);
+		}
+		System.out.println("new pc: "+mem.pc);
+		System.out.println("branch_pc pc: "+branch_pc);
 
 	}
 
 	public  void execute(primary_memory mem , instructions[] instr_que)
 	{
 
-		if(instr_que[2]==null) return ;
+		if(instr_que[2]==null || instr_que[2].bypass) return ;
 		System.out.println("at execute");
 
 		mem.rmt = mem.rb;
@@ -288,12 +320,48 @@ public class datapath
 			break;
 
 		case 4:
+		prev_to_prev=branch_pc;
+		////////////////////////////////////////////////////////////////////////
+		if(pipelined)//shifted execute to decode for control instructio
+		{
+			System.out.println("enetered decode for controool hazard");
+			//int ra = obj.rs1,rb = obj.rs2;
+			alu.executesb(obj.id, ra, rb, mem.iv); // SB-type
+			branchobject check=branchbuffer.get(prev_to_prev);
+			//mem.rxt = alu.output;/////////////////////////////////////////////////////////////////////////////////////
+			if (alu.output != check.prediction)
+			{
+				no_of_branch_mispredictions++;
+				System.out.println("wrong prediction for control hazrad checked in execute");
+
+				if(alu.output == 1)
+				{
+					mem.pc = mem.iv * 2 + prev_to_prev;////
+					check.updateprediction(1);
+				}
+				else
+				{
+					mem.pc = prev_to_prev+4;
+					check.updateprediction(0);
+				}
+				System.out.println("new pc: "+mem.pc);
+				instr_que[0]=null;
+				instr_que[1]=null;
+			}
+			instr_que[2].bypass=true;// here im flushing this branch instruction next time it shouldnt decode the next instruction as well
+			break;
+		}
+		////////////////////////////////////////////////////////////////////////
+
+		else
+		{
 			alu.executesb(obj.id, ra, rb, mem.iv); // SB-type
 			mem.rxt = alu.output;
 			if (mem.rxt == 1) {
 				mem.pc = mem.iv * 2 + mem.pc - 4;
 			}
 			break;
+		}
 
 		}
 
@@ -308,7 +376,28 @@ public class datapath
 		boolean change_ir=true;
 		instructions obj = instr_que[3];
 		if(instr_que[4]!=null)
+		{
 			no_of_instructions++;
+			// switch(instr_que[4].type)
+			// {
+			// 	case 4: no_of_ctrl_instructions++;no_of_ctrl_hazards++;break;
+			// 	case 6: no_of_ctrl_instructions++;
+			// 	case 2:
+			// 				switch(instr_que[4].id)
+			// 				{
+			// 					case 50: no_of_ctrl_instructions++;
+			// 				}
+			// }
+			switch(instr_que[4].mem_switch)
+			{
+				case 1:no_of_alu_instructions++;break;
+				case 2:no_of_data_transfer_instructions++;break;
+				case 3:no_of_data_transfer_instructions++;break;
+				case 4:no_of_ctrl_instructions++;break;
+				case 5:no_of_ctrl_instructions++;break;
+				default:break;
+			}
+		}
 		{
 			instr_que[4]=instr_que[3];
 			instr_que[3]=instr_que[2];
@@ -316,7 +405,6 @@ public class datapath
 			{
 				instr_que[2]=instr_que[1];
 				instr_que[1]=instr_que[0];
-
 			}
 			else
 			{
@@ -336,8 +424,10 @@ public class datapath
 		{
 			if(i==null) empty_instr++;
 		}
-		if(obj==null && empty_instr==5)
+		if(obj==null && empty_instr==5)///return for data dependency as there are 5 empty even there
 		{
+			//if(pipelined && check(mem.loadwordstr(mem.pc))) return false;///changed for bypass
+			//if(pipelined) return false;
 			toggle(mem,change_ir);
 		  return true;
 		}
@@ -438,7 +528,7 @@ public class datapath
 
 
 		instructions obj=instr_que[4];
-		if(obj==null) return;
+		if(obj==null || obj.bypass) return;
 		System.out.println("at write");
 		//System.out.println("Writing");
 
@@ -464,14 +554,17 @@ public class datapath
 
 	public  void run(primary_memory mem,boolean pip)
 	{
-
+		temp_pc=0;
 		mem.pc=0;
 		boolean flag;
 		instructions[] instr_que=new instructions[5];
 		for(instructions i:instr_que)i=null;
 		pipelined=pip;
+		int n=12;
 		while(true)
 		{
+			n--;
+ 		 prev_pc=temp_pc;
 		 flag=fetch (mem,instr_que);
 		 write  (mem,instr_que);
 		 decode (mem,instr_que);

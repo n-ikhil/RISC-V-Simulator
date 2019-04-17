@@ -10,7 +10,7 @@ public class instructions
     int rs1,rs2,iv,rd,id,type;
     String opcode,fun3,fun7,instruct;
     int mem_switch;// no action :0,write to register:1 , write to memory : 2,load from memory :3,write to pc with offset:4,write to pc as reg value:5
-
+    boolean bypass;
     int parseint(String binaryInt,int t) {
         //Check if the number is negative.
         //We know it's negative if it starts with a 1
@@ -42,12 +42,12 @@ public class instructions
 
     instructions()
     {
-      ;
+      bypass=false;
     }
     instructions(primary_memory mem)
         {
 
-
+            bypass=false;
             /////////////////////////
             String array=mem.ir;
             //String array=mem.ir; //stage 1
@@ -366,7 +366,7 @@ public class instructions
 
                     switch (fun3)
                         {
-                            case "000": // beq
+                            case "000": //
                                 id = 44;return;
                             case "001": // bne
                                 id = 45;return;

@@ -18,9 +18,8 @@ public class branchobject {
 		else two_bit--;
 		if(two_bit<0) two_bit=0;
 		if(two_bit>3)two_bit=3;
-		if(two_bit<2) prediction=0;
-		else prediction=1;
+		if(two_bit<2) this.prediction=0;
+		else this.prediction=1;
 
-		this.prediction=predictedvalue;
 	}
 }
