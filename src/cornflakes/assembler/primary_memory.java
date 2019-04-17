@@ -7,19 +7,21 @@ public class primary_memory {
     //
     Map<Integer, String> mem;
     //private  String[] memory;
-    final int stack_start = 268435;//2^28-3-1
-    final int heap_start = 168435;//2^28
+    int  stack_start =  0x7FFFFFFC;//2^28-3-1
+    final int heap_start = 0x10007FE8;//2^28
     final int instruction_start = 0;//no reserved,obvio !!
+    public int data_start=0x10000000;
     public int[] register;
     public String ir, irt;
     public int ra, rb, rm, rx, ry, rz, pc, iv;
     public int rat, rbt, rmt, rxt, ryt, rzt, pct, ivt;
     String n = "00000000000000000000000000000000";
-    int cache_size = 2;
-    int block_size = 2;
-    int cache_type = 3;
-    int no_sets = 2;
-    Cache cache;
+    int c_size;
+    int b_size;
+    int c_type;
+    int n_sets;
+    Cache d_cache;
+    Cache i_cache;
 
     public static int binlog(int bits) // returns 0 for bits=0
     {
@@ -77,10 +79,6 @@ public class primary_memory {
         for(int i=0;i< 268435;i++) memory[i]="00000000";*/
         register = new int[32];
         mem = new HashMap<>();
-        cache = new Cache();
-        for (int i = 0; i < 32; i++) {
-            register[i] = 0;
-        }
 
         register[2] = stack_start;
         register[3] = heap_start;
@@ -91,6 +89,16 @@ public class primary_memory {
     }
 
     public class Cache {
+
+        int cache_size;
+        int block_size;
+        int cache_type;
+        int no_sets;
+        int access;
+        int miss;
+        int cold_miss;
+        int conflict_miss;
+        int capacity_miss;
 
         public class block {
 
@@ -104,14 +112,43 @@ public class primary_memory {
                 bytes = new String[block_size * 4];
             }
         }
-        block[] cache_dm = new block[cache_size];
-        Deque<block> dq_fas = new LinkedList();
-        HashSet<Integer> tag_fas;
 
-        Cache() {
+        class set {
+
+            Deque<block> dq_fas = new LinkedList();
+            HashSet<Integer> tag_fas;
+
+            set() {
+                dq_fas = new LinkedList();
+                this.tag_fas = new HashSet<>();
+            }
+        }
+        block[] cache_dm ;
+        Deque<block> dq_fas = new LinkedList<>();
+        HashSet<Integer> tag_fas;
+        set[] set_cache ;
+
+        Cache(int cache_size,
+                int block_size,
+                int cache_type,
+                int no_sets) {
+            this.cache_size = cache_size;
+            this.block_size = block_size;
+            this.cache_type = cache_type;
+            this.no_sets = no_sets;
+            access = 0;
+            miss = 0;
+            cold_miss = 0;
+            conflict_miss = 0;
+            capacity_miss = 0;
+            cache_dm = new block[cache_size];
+             set_cache = new set[no_sets];
             this.tag_fas = new HashSet<>();
             for (int i = 0; i < cache_size; i++) {
                 cache_dm[i] = new block();
+            }
+            for (int i = 0; i < no_sets; i++) {
+                set_cache[i] = new set();
             }
         }
         int off, tag, index;
@@ -128,19 +165,33 @@ public class primary_memory {
             }
             bin_line = temp + bin_line;
             //checking type of cache
-            if (cache_type == 0) {
-                //int block_addr = addr / (block_size * 4);
-                //int index = block_addr % cache_size;
+            switch (cache_type) {
+                case 0: {
+                    //int block_addr = addr / (block_size * 4);
+                    //int index = block_addr % cache_size;
 
-                int n = binlog(block_size * 4);
-                int m = binlog(cache_size);
-                off = Integer.parseInt(bin_line.substring(32 - n, 32), 2);
-                index = Integer.parseInt(bin_line.substring(32 - n - m, 32 - n), 2);
-                tag = Integer.parseInt(bin_line.substring(0, 32 - n - m), 2);
-
-            } else if (cache_type == 1) {
-                int n = binlog(block_size * 4);
-                off = Integer.parseInt(bin_line.substring(32 - n, 32), 2);
+                    int n = binlog(block_size * 4);
+                    int m = binlog(cache_size);
+                    off = Integer.parseInt(bin_line.substring(32 - n, 32), 2);
+                    index = Integer.parseInt(bin_line.substring(32 - n - m, 32 - n), 2);
+                    tag = Integer.parseInt(bin_line.substring(0, 32 - n - m), 2);
+                    break;
+                }
+                case 1: {
+                    int n = binlog(block_size * 4);
+                    off = Integer.parseInt(bin_line.substring(32 - n, 32), 2);
+                    break;
+                }
+                case 2: {
+                    int n = binlog(block_size * 4);
+                    off = Integer.parseInt(bin_line.substring(32 - n, 32), 2);
+                    int m = binlog(no_sets);
+                    index = Integer.parseInt(bin_line.substring(32 - n - m, 32 - n), 2);
+                    tag = Integer.parseInt(bin_line.substring(0, 32 - n - m), 2);
+                    break;
+                }
+                default:
+                    break;
             }
         }
 
@@ -167,147 +218,360 @@ public class primary_memory {
             }
         }
 
+        public block s_LRU(Deque<block> dq_fas, HashSet<Integer> tag_fas) {
+            if (!tag_fas.contains(tag)) {
+                if (dq_fas.size() == cache_size) {
+                    block temp = dq_fas.removeLast();
+                    tag_fas.remove(temp.tag);
+                }
+                return null;
+            } else {
+                int i = 0;
+                block temp = new block();
+                Iterator<block> itr = dq_fas.iterator();
+                while (itr.hasNext()) {
+                    temp = itr.next();
+                    if (temp.tag == tag) {
+                        break;
+                    }
+                    i++;
+                }
+                dq_fas.remove(temp);
+                return temp;
+            }
+        }
+
         public void storebytestr(int addr, String byte_in) {
             calculate_addr(addr);
+            access++;
             //mem.put(addr, byte_in.substring(0, 8));
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    cache_dm[index].bytes[off] = byte_in.substring(0, 8);
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        cache_dm[index].bytes[off] = byte_in.substring(0, 8);
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
                     }
-                }
-            } else if (cache_type == 1) {
-                block temp ;
-                temp = f_LRU();
-                if (temp != null) {
-                    temp.bytes[off] = byte_in.substring(0, 8);
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
+                    break;
+                case 1: {
+                    block temp;
+                    temp = f_LRU();
+                    if (temp != null) {
+                        temp.bytes[off] = byte_in.substring(0, 8);
+                    } else {
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        } else {
+                            capacity_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
                     }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
                 }
-
+                case 2: {
+                    block temp;
+                    temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        temp.bytes[off] = byte_in.substring(0, 8);
+                    } else {
+                        if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
         }
 
         public void storewordstr(int addr, String word_in) {
             calculate_addr(addr);
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    cache_dm[index].bytes[off] = word_in.substring(24, 32);
-                    cache_dm[index].bytes[off + 1] = word_in.substring(16, 24);
-                    cache_dm[index].bytes[off + 2] = word_in.substring(8, 16);
-                    cache_dm[index].bytes[off + 3] = word_in.substring(0, 8);
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
+            access++;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        cache_dm[index].bytes[off] = word_in.substring(24, 32);
+                        cache_dm[index].bytes[off + 1] = word_in.substring(16, 24);
+                        cache_dm[index].bytes[off + 2] = word_in.substring(8, 16);
+                        cache_dm[index].bytes[off + 3] = word_in.substring(0, 8);
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
                     }
-                }
-            } else if (cache_type == 1) {
-                block temp = f_LRU();
-                if (temp != null) {
-                    temp.bytes[off] = word_in.substring(24, 32);
-                    temp.bytes[off + 1] = word_in.substring(16, 24);
-                    temp.bytes[off + 2] = word_in.substring(8, 16);
-                    temp.bytes[off + 3] = word_in.substring(0, 8);
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
+                    break;
+                //System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] + memory[addr]+"-");
+                case 1: {
+                    block temp = f_LRU();
+                    if (temp != null) {
+                        temp.bytes[off] = word_in.substring(24, 32);
+                        temp.bytes[off + 1] = word_in.substring(16, 24);
+                        temp.bytes[off + 2] = word_in.substring(8, 16);
+                        temp.bytes[off + 3] = word_in.substring(0, 8);
+                    } else {
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        } else {
+                            capacity_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
                     }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
                 }
+                case 2: {
+                    block temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        temp.bytes[off] = word_in.substring(24, 32);
+                        temp.bytes[off + 1] = word_in.substring(16, 24);
+                        temp.bytes[off + 2] = word_in.substring(8, 16);
+                        temp.bytes[off + 3] = word_in.substring(0, 8);
+                    } else {
+                         if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
-            //System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] + memory[addr]+"-");
         }
 
         public void storehalfstr(int addr, String half_in) {
             calculate_addr(addr);
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    cache_dm[index].bytes[off + 1] = half_in.substring(0, 8);
-                    cache_dm[index].bytes[off] = half_in.substring(8, 16);
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
+            access++;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        cache_dm[index].bytes[off + 1] = half_in.substring(0, 8);
+                        cache_dm[index].bytes[off] = half_in.substring(8, 16);
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
                     }
-                }
-            } else if (cache_type == 1) {
-                block temp = f_LRU();
-                if (temp != null) {
-                    temp.bytes[off] = half_in.substring(8, 16);
-                    temp.bytes[off + 1] = half_in.substring(0, 8);
+                    break;
+                case 1: {
+                    block temp = f_LRU();
+                    if (temp != null) {
+                        temp.bytes[off] = half_in.substring(8, 16);
+                        temp.bytes[off + 1] = half_in.substring(0, 8);
 
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
+                    } else {
+                        
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        } else {
+                            capacity_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
                     }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
                 }
+                case 2: {
+                    block temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        temp.bytes[off] = half_in.substring(8, 16);
+                        temp.bytes[off + 1] = half_in.substring(0, 8);
+
+                    } else {
+                         if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
 
         }
 
         public String loadbytestr(int addr) {
             calculate_addr(addr);
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    return cache_dm[index].bytes[off];
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
+            access++;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        return cache_dm[index].bytes[off];
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
                     }
-                }
-            } else if (cache_type == 1) {
-                block temp ;
-                temp = f_LRU();
-                if (temp != null) {
-                    return temp.bytes[off];
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
-                    }
-                }
+                    break;
+                case 1: {
+                    block temp;
+                    temp = f_LRU();
+                    if (temp != null) {
+                        dq_fas.push(temp);
+                        tag_fas.add(tag);
+                        return temp.bytes[off];
+                    } else {
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            capacity_miss++;
+                        }
 
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
+                }
+                case 2: {
+                    block temp;
+                    temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        set_cache[index].dq_fas.push(temp);
+                        set_cache[index].tag_fas.add(tag);
+                        return temp.bytes[off];
+                    } else {
+                         if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
 
             return mem.getOrDefault(addr, n);
@@ -315,36 +579,86 @@ public class primary_memory {
 
         public String loadhalfstr(int addr) {
             calculate_addr(addr);
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    return cache_dm[index].bytes[off + 1] + cache_dm[index].bytes[off + 1];
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
+            access++;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        return cache_dm[index].bytes[off + 1] + cache_dm[index].bytes[off];
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
                     }
-                }
-            }
-            else if (cache_type == 1) {
-                block temp ;
-                temp = f_LRU();
-                if (temp != null) {
-                    return temp.bytes[off]+temp.bytes[off+1];
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
+                    break;
+                case 1: {
+                    block temp;
+                    temp = f_LRU();
+                    if (temp != null) {
+                        dq_fas.push(temp);
+                        tag_fas.add(tag);
+                        return temp.bytes[off + 1] + temp.bytes[off];
+                    } else {
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            capacity_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
                     }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
                 }
+                case 2: {
+                    block temp;
+                    temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        set_cache[index].dq_fas.push(temp);
+                        set_cache[index].tag_fas.add(tag);
 
+                        return temp.bytes[off + 1] + temp.bytes[off];
+                    } else {
+                         if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
             if (!mem.containsKey(addr)) {
                 return n;
@@ -355,37 +669,86 @@ public class primary_memory {
         public String loadwordstr(int addr) {
 
             calculate_addr(addr);
-            if (cache_type == 0) {
-                if (tag == cache_dm[index].tag && cache_dm[index].valid) {
-                    return cache_dm[index].bytes[off + 3] + cache_dm[index].bytes[off + 2] + cache_dm[index].bytes[off + 1] + cache_dm[index].bytes[off];
-                } else {
-                    int n = binlog(block_size * 4);
-                    int bloc_addr = addr << (32 - n);
-                    bloc_addr = addr >> (32 - n);
-                    for (int i = 0; i < block_size * 4; i++) {
-                        cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        cache_dm[index].tag = tag;
-                        cache_dm[index].valid = true;
-                    }
+            access++;
+            switch (cache_type) {
+                case 0:
+                    if (tag == cache_dm[index].tag && cache_dm[index].valid) {
+                        return cache_dm[index].bytes[off + 3] + cache_dm[index].bytes[off + 2] + cache_dm[index].bytes[off + 1] + cache_dm[index].bytes[off];
+                    } else {
+                        if (!cache_dm[index].valid) {
+                            cold_miss++;
+                        } else {
+                            conflict_miss++;
+                        }
+                        int n = binlog(block_size * 4);
+                        int bloc_addr = addr << (32 - n);
+                        bloc_addr = addr >> (32 - n);
+                        for (int i = 0; i < block_size * 4; i++) {
+                            cache_dm[index].bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            cache_dm[index].tag = tag;
+                            cache_dm[index].valid = true;
+                        }
 
-                }
-            }
-            else if (cache_type == 1) {
-                block temp ;
-                temp = f_LRU();
-                if (temp != null) {
-                    return temp.bytes[off]+temp.bytes[off+1]+temp.bytes[off+2]+temp.bytes[off+3];
-                } else {
-                    temp=new block();
-                    for (int i = 0; i < block_size * 4; i++) {
-                        temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
-                        calculate_addr(addr + i);
-                        temp.tag = tag;
-                        temp.valid = true;
                     }
+                    break;
+                case 1: {
+                    block temp;
+                    temp = f_LRU();
+                    if (temp != null) {
+                        dq_fas.push(temp);
+                        tag_fas.add(tag);
+                        return temp.bytes[off + 3] + temp.bytes[off + 2] + temp.bytes[off + 1] + temp.bytes[off];
+                    } else {
+                        if (dq_fas.size() != cache_size - 1) {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            capacity_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    dq_fas.push(temp);
+                    tag_fas.add(tag);
+                    break;
                 }
-
+                case 2: {
+                    block temp;
+                    temp = s_LRU(set_cache[index].dq_fas, set_cache[index].tag_fas);
+                    if (temp != null) {
+                        set_cache[index].dq_fas.push(temp);
+                        set_cache[index].tag_fas.add(tag);
+                        return temp.bytes[off + 3] + temp.bytes[off + 2] + temp.bytes[off + 1] + temp.bytes[off];
+                    } else {
+                         if(set_cache[index].dq_fas.size()!=cache_size-1)
+                        {
+                            cold_miss++;
+                        }
+                        else
+                        {
+                            conflict_miss++;
+                        }
+                        temp = new block();
+                        for (int i = 0; i < block_size * 4; i++) {
+                            temp.bytes[i] = mem.getOrDefault(addr + i, "00000000");
+                            calculate_addr(addr + i);
+                            temp.tag = tag;
+                            temp.valid = true;
+                        }
+                    }
+                    set_cache[index].dq_fas.push(temp);
+                    set_cache[index].tag_fas.add(tag);
+                    break;
+                }
+                default:
+                    break;
             }
             if (!mem.containsKey(addr)) {
                 return n;
@@ -397,12 +760,23 @@ public class primary_memory {
 
     }
 
-    public void set_primary_memory() {
+    public void set_primary_memory(int c_size,
+    int b_size,
+    int c_type1,
+    int c_type2,
+    int n_sets) {
         /*memory=new String[268435]; //max-memory=2^28;
         for(int i=0;i< 268435;i++) memory[i]="00000000";*/
         //register = new int[32];
         mem = new HashMap<>();
-        cache = new Cache();
+        this.c_size=c_size;
+        this.b_size=b_size;
+        this.c_type=c_type1;
+        this.n_sets=n_sets;
+        
+        i_cache = new Cache(c_size, b_size, c_type, n_sets);
+        this.c_type=c_type2;
+        d_cache=new Cache(c_size, b_size, c_type, n_sets);
         for (int i = 0; i < 32; i++) {
             register[i] = 0;
         }
@@ -421,7 +795,10 @@ public class primary_memory {
     public String loadbytestr(int addr) {
 
 //        return mem.getOrDefault(addr, n);
-        return cache.loadbytestr(addr);
+        if(addr<data_start)
+        return i_cache.loadbytestr(addr);
+        else
+            return d_cache.loadbytestr(addr);
 
     }
 
@@ -430,7 +807,9 @@ public class primary_memory {
 //            return n;
 //        }
 //        return mem.get(addr + 1) + mem.get(addr);
-        return cache.loadhalfstr(addr);
+if(addr<data_start)
+        return i_cache.loadhalfstr(addr);
+else return i_cache.loadhalfstr(addr);
     }
 
     public String loadwordstr(int addr) {
@@ -442,14 +821,19 @@ public class primary_memory {
 //        boolean d = mem.containsKey(addr);
 //        String a = mem.get(addr + 3) + mem.get(addr + 2) + mem.get(addr + 1) + mem.get(addr);
 //        return a;
-        return cache.loadwordstr(addr);
+      if(addr<data_start)
+        return i_cache.loadwordstr(addr);
+else return i_cache.loadwordstr(addr);
     }
 
     public void storebytestr(int addr, String byte_in) {
         //cache.calculate_addr(addr, byte_in);
 
         mem.put(addr, byte_in.substring(0, 8));
-        cache.storebytestr(addr, byte_in);
+        if(addr<data_start)
+        i_cache.storebytestr(addr, byte_in);
+        else
+            d_cache.storebytestr(addr, byte_in);
         //memory[addr]=byte_in.substring(0,8);
 
     }
@@ -465,7 +849,11 @@ public class primary_memory {
         mem.put(addr + 2, word_in.substring(8, 16));
         mem.put(addr + 1, word_in.substring(16, 24));
         mem.put(addr + 0, word_in.substring(24, 32));
-        cache.storewordstr(addr, word_in);
+ if(addr<data_start)
+        i_cache.storewordstr(addr, word_in);
+        else
+            d_cache.storewordstr(addr, word_in);
+        //memory[addr]=byte_in.substring(0,8);
 
         //System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] + memory[addr]+"-");
     }
@@ -475,32 +863,52 @@ public class primary_memory {
         mem.put(addr, half_in.substring(8, 16));
 //        memory[addr]=half_in.substring(8 ,16);
 //        memory[addr+1]=half_in.substring(0 , 8);
-        cache.storehalfstr(addr, half_in);
+         if(addr<data_start)
+        i_cache.storehalfstr(addr, half_in);
+        else
+            d_cache.storehalfstr(addr, half_in);
     }
 
     ///////////////////////////// output is binary string /////////
     public int loadbyte(int addr) {
-
-        int itemp = parseint(cache.loadbytestr(addr), 2);
+        if(addr<data_start){
+        int itemp = parseint(i_cache.loadbytestr(addr), 2);
         return itemp;
+        }
+        else
+        {
+            int itemp = parseint(d_cache.loadbytestr(addr), 2);
+        return itemp;
+        }
     }
 
     public int loadhalf(int addr) {
 
 //        String rets = mem.get(addr + 1) + mem.get(addr);
-        int itemp = parseint(cache.loadhalfstr(addr), 2);
+       if(addr<data_start){
+        int itemp = parseint(i_cache.loadhalfstr(addr), 2);
         return itemp;
+        }
+        else
+        {
+            int itemp = parseint(d_cache.loadhalfstr(addr), 2);
+        return itemp;
+        }
     }
 
     public int loadword(int addr) {
 
         //System.out.println(addr+memory[addr+3]+memory[addr+2]+memory[addr+1]+memory[addr]);
 //        String rets = mem.get(addr + 3) + mem.get(addr + 2) + mem.get(addr + 1) + mem.get(addr);
-        int itemp = parseint(cache.loadwordstr(addr), 2);
-        ////////////////////////////////////
-        //System.out.println(itemp+":"+addr+":"+rets);
-        ////////////////////////////////////
+        if(addr<data_start){
+        int itemp = parseint(i_cache.loadwordstr(addr), 2);
         return itemp;
+        }
+        else
+        {
+            int itemp = parseint(d_cache.loadwordstr(addr), 2);
+        return itemp;
+        }
     }
 
     public void storebyte(int addr, int num) {
@@ -516,7 +924,10 @@ public class primary_memory {
         bin_line = temp + bin_line;
         bin_line = bin_line.substring(bin_line.length() - 8, bin_line.length());//15
         mem.put(addr, bin_line.substring(0, 8));
-        cache.storebytestr(addr, bin_line);
+        if(addr<data_start)
+        i_cache.storebytestr(addr, bin_line);
+        else
+             d_cache.storebytestr(addr, bin_line);
 
     }
 
@@ -540,7 +951,10 @@ public class primary_memory {
         mem.put(addr + 0, bin_line.substring(24, 32));
         // System.out.println(memory[addr + 3] + memory[addr + 2] + memory[addr + 1] +
         // memory[addr]+"-");
-        cache.storewordstr(addr, bin_line);
+           if(addr<data_start)
+        i_cache.storewordstr(addr, bin_line);
+        else
+             d_cache.storewordstr(addr, bin_line);
 
     }
 
@@ -559,7 +973,10 @@ public class primary_memory {
 
         mem.put(addr + 1, bin_line.substring(0, 8));
         mem.put(addr, bin_line.substring(8, 16));
-        cache.storehalfstr(addr, bin_line);
+          if(addr<data_start)
+        i_cache.storehalfstr(addr, bin_line);
+        else
+             d_cache.storehalfstr(addr, bin_line);
     }
 
     ///////////////////////////// output is binary string /////////
