@@ -429,7 +429,7 @@ Object[][] reg=new Object [][] {
 
                         }
                 }
-                catch(Exception e){System.out.println("No input");}
+                catch(Exception e){System.out.println(e);}
         datapath dat=new datapath();
         dat.run(memory,pip);
         for(int i=0;i<32;i++)
