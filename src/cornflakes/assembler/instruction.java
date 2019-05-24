@@ -191,7 +191,8 @@ public class instruction
 				switch (opcode)
 					{
 					case "auipc":
-						uformat("0010011", "111", "0000000", r1, iv);
+						System.out.println(iv+" "+r1);
+						uformat("0010111", "", "0000000", r1, iv);
 						break;
 					case "lui":
 						uformat("0110111", "000", "0000000", r1, iv);
@@ -534,7 +535,17 @@ public class instruction
 				temp = "";
 
 				binary_temp[2] = Integer.toBinaryString(iv);
-				for (int i = 0; i < 32 - binary_temp[2].length(); i++)
+				System.out.println(binary_temp[2]+"but");
+				if(binary_temp[2].length() <= 20)
+				{
+					int k = 20 - binary_temp[2].length();
+					for(int i=0;i<k;i++)
+					{
+						binary_temp[2] = "0" + binary_temp[2];
+					}
+				}
+				System.out.println(binary_temp[2]+"real");
+				/*for (int i = 0; i < 32 - binary_temp[2].length(); i++)
 					{
 
 						if (iv < 0)
@@ -546,7 +557,7 @@ public class instruction
 				temp = temp.substring(temp.length() - 32, temp.length());
 
 				binary_temp[2] = temp.substring(0, 20);
-
+				System.out.println(binary_temp[2]+"val");*/
 				binary = new String();
 
 				for (int temp_s = 2; temp_s >= 0; temp_s--)
@@ -555,7 +566,7 @@ public class instruction
 						binary = binary + binary_temp[temp_s];
 
 					}
-
+				System.out.println(binary+"bin");
 				wants_label = false;
 				return;
 			}
