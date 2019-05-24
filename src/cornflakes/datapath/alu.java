@@ -304,7 +304,8 @@ public class alu {
 
 		case 19: // auipc
 
-			output = rs1u + immu;
+			immu = immu<<12;
+			output = rs1u + immu - 4;
 			break;
 
 		case 38: // lui
